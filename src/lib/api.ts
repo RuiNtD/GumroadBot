@@ -1,7 +1,7 @@
 import axios from "axios";
 import config from "config";
 
-type LicenseResponse =
+export type LicenseResponse =
   | {
       success: true;
       uses: number;
