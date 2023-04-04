@@ -4,6 +4,7 @@ import { MessageEmbed, Permissions } from "discord.js";
 import { disable } from "../lib/api.js";
 import { error, success } from "../lib/embeds.js";
 import log from "../lib/log.js";
+import { formatUser } from "../lib/utils.js";
 
 @ApplyOptions<Command.Options>({
   description: "Disable a Hybrid V2 license",
@@ -48,7 +49,7 @@ export class UserCommand extends Command {
             { name: "Uses", value: `${data.uses}`, inline: true },
           ])
           .setFooter({
-            text: `${interaction.user.tag} (${interaction.user.id})`,
+            text: formatUser(interaction.user),
             iconURL: interaction.user.displayAvatarURL(),
           })
           .setTimestamp(),
