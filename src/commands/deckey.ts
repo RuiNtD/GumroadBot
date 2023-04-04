@@ -27,7 +27,7 @@ export class UserCommand extends Command {
   public override async chatInputRun(
     interaction: Command.ChatInputInteraction
   ) {
-    const key = <string>interaction.options.getString("key");
+    const key = interaction.options.getString("key", true);
     const data = await decUses(key);
 
     if (!data.success) {
