@@ -5,12 +5,14 @@ import {
 } from "@sapphire/framework";
 import config from "config";
 import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  EmbedBuilder,
   GuildMemberRoleManager,
-  MessageActionRow,
-  MessageButton,
-  MessageEmbed,
-  MessageOptions,
+  MessageCreateOptions,
   ModalSubmitInteraction,
+  PermissionsBitField,
 } from "discord.js";
 import { verify } from "../lib/api.js";
 import { error, success } from "../lib/embeds.js";
@@ -26,7 +28,7 @@ export class ModalHandler extends InteractionHandler {
     return this.some(interaction.fields.getTextInputValue("licenseKey"));
   }
 
-  @RequiresClientPermissions("MANAGE_ROLES")
+  @RequiresClientPermissions(PermissionsBitField.Flags.ManageRoles)
   public async run(
     interaction: ModalSubmitInteraction,
     key: InteractionHandler.ParseResult<this>
@@ -59,16 +61,16 @@ export class ModalHandler extends InteractionHandler {
         ephemeral: true,
         embeds: [error(data.message)],
         components: [
-          new MessageActionRow().addComponents(
-            new MessageButton({
+          new ActionRowBuilder<ButtonBuilder>().addComponents(
+            new ButtonBuilder({
               customId: "verify",
               label: "Try Again",
-              style: "PRIMARY",
+              style: ButtonStyle.Primary,
             }),
-            new MessageButton({
+            new ButtonBuilder({
               customId: "help",
               label: "Help",
-              style: "SECONDARY",
+              style: ButtonStyle.Secondary,
             })
           ),
         ],
@@ -84,9 +86,9 @@ export class ModalHandler extends InteractionHandler {
       );
     }
 
-    let logMsg: MessageOptions = {
+    const logMsg: MessageCreateOptions = {
       embeds: [
-        new MessageEmbed()
+        new EmbedBuilder()
           .setTitle("Verified")
           .setThumbnail(interaction.user.displayAvatarURL())
           .addFields([
@@ -99,7 +101,7 @@ export class ModalHandler extends InteractionHandler {
       ],
     };
     if (data.uses > 1) logMsg.content = `<@${config.get("pupwolfID")}>`;
-    log(logMsg);
+    log(interaction.client, logMsg);
     console.log("Success", interaction.user.tag);
 
     const usesPlural = data.uses == 1 ? "time" : "times";

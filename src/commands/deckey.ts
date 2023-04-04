@@ -1,6 +1,6 @@
 import { ApplyOptions } from "@sapphire/decorators";
 import { Command, CommandOptionsRunTypeEnum } from "@sapphire/framework";
-import { Permissions } from "discord.js";
+import { ChatInputCommandInteraction, PermissionsBitField } from "discord.js";
 import { decUses } from "../lib/api.js";
 import { error, success } from "../lib/embeds.js";
 
@@ -14,7 +14,7 @@ export class UserCommand extends Command {
       builder //
         .setName(this.name)
         .setDescription(this.description)
-        .setDefaultMemberPermissions(Permissions.FLAGS.ADMINISTRATOR)
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
         .addStringOption((option) =>
           option
             .setName("key")
@@ -24,9 +24,7 @@ export class UserCommand extends Command {
     );
   }
 
-  public override async chatInputRun(
-    interaction: Command.ChatInputInteraction
-  ) {
+  public override async chatInputRun(interaction: ChatInputCommandInteraction) {
     const key = interaction.options.getString("key", true);
     const data = await decUses(key);
 

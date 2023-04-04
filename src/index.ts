@@ -1,14 +1,12 @@
 import config from "config";
 import { SapphireClient } from "@sapphire/framework";
-import { setClient } from "./lib/client.js";
 
 const client = new SapphireClient({
-  intents: ["GUILDS"],
+  intents: ["Guilds"],
 });
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user?.tag}!`);
-  setClient(client);
 });
 
 client.on("warn", (m) => console.warn(m));

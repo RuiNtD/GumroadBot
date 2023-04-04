@@ -1,13 +1,13 @@
-import { MessageEmbed } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 
 export function success(msg?: string) {
-  let embed = new MessageEmbed().setColor("GREEN").setTitle("Success");
+  const embed = new EmbedBuilder().setColor("Green").setTitle("Success");
   if (msg) embed.setDescription(msg);
   return embed;
 }
 
 export function error(msg?: string) {
-  let embed = new MessageEmbed().setColor("RED").setTitle("Error");
+  const embed = new EmbedBuilder().setColor("Red").setTitle("Error");
   if (msg) embed.setDescription(msg);
   return embed;
 }

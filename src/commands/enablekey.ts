@@ -1,10 +1,11 @@
 import { ApplyOptions } from "@sapphire/decorators";
 import { Command, CommandOptionsRunTypeEnum } from "@sapphire/framework";
-import { MessageEmbed, Permissions } from "discord.js";
+import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import { enable } from "../lib/api.js";
 import { error, success } from "../lib/embeds.js";
 import log from "../lib/log.js";
 import { formatUser } from "../lib/utils.js";
+import { PermissionsBitField } from "discord.js";
 
 @ApplyOptions<Command.Options>({
   description: "Enable a Hybrid V2 license",
@@ -16,7 +17,7 @@ export class UserCommand extends Command {
       builder //
         .setName(this.name)
         .setDescription(this.description)
-        .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_ROLES)
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageRoles)
         .addStringOption((option) =>
           option
             .setName("key")
@@ -26,9 +27,7 @@ export class UserCommand extends Command {
     );
   }
 
-  public override async chatInputRun(
-    interaction: Command.ChatInputInteraction
-  ) {
+  public override async chatInputRun(interaction: ChatInputCommandInteraction) {
     const key = interaction.options.getString("key", true);
     const data = await enable(key);
 
@@ -39,10 +38,10 @@ export class UserCommand extends Command {
       });
     }
 
-    log({
+    log(interaction.client, {
       embeds: [
-        new MessageEmbed()
-          .setColor("GREEN")
+        new EmbedBuilder()
+          .setColor("Green")
           .setTitle("License Enabled")
           .addFields([
             { name: "License Key", value: key, inline: true },

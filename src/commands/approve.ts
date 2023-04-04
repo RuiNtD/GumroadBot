@@ -2,10 +2,11 @@ import { ApplyOptions } from "@sapphire/decorators";
 import { Command, CommandOptionsRunTypeEnum } from "@sapphire/framework";
 import config from "config";
 import {
+  ChatInputCommandInteraction,
+  EmbedBuilder,
   GuildMemberRoleManager,
-  MessageEmbed,
-  MessageOptions,
-  Permissions,
+  MessageCreateOptions,
+  PermissionsBitField,
 } from "discord.js";
 import { LicenseResponse, verify } from "../lib/api.js";
 import { error, success } from "../lib/embeds.js";
@@ -22,7 +23,7 @@ export class UserCommand extends Command {
       builder //
         .setName(this.name)
         .setDescription(this.description)
-        .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_ROLES)
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageRoles)
         .addUserOption((option) =>
           option
             .setName("user")
@@ -38,12 +39,11 @@ export class UserCommand extends Command {
     );
   }
 
-  public override async chatInputRun(
-    interaction: Command.ChatInputInteraction
-  ) {
+  public override async chatInputRun(interaction: ChatInputCommandInteraction) {
     const user = interaction.options.getUser("user", true);
-    const member = interaction.options.getMember("user", true);
     const key = interaction.options.getString("key", false);
+    const member = interaction.options.getMember("user");
+    if (!member) return;
 
     console.log("Manual Verifying", {
       user: `${user.tag} (${user.id})`,
@@ -92,9 +92,10 @@ export class UserCommand extends Command {
         },
       ]);
     }
-    let logMsg: MessageOptions = {
+
+    const logMsg: MessageCreateOptions = {
       embeds: [
-        new MessageEmbed()
+        new EmbedBuilder()
           .setTitle(key ? "Verified by Mod" : "Manually Approved by Mod")
           .setThumbnail(user.displayAvatarURL())
           .addFields(fields)
@@ -106,7 +107,7 @@ export class UserCommand extends Command {
       ],
     };
     if (data && data.uses > 1) logMsg.content = `<@${config.get("pupwolfID")}>`;
-    log(logMsg);
+    log(interaction.client, logMsg);
     console.log("Success", user.tag);
 
     return interaction.reply({

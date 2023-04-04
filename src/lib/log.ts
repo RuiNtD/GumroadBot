@@ -1,26 +1,25 @@
 import type {
-  MessageOptions,
+  Client,
+  MessageCreateOptions,
   MessagePayload,
-  TextBasedChannel,
+  TextChannel,
 } from "discord.js";
 import config from "config";
-import { getClient } from "./client.js";
 
-let loggingChannel: TextBasedChannel;
-
-(async () => {
-  const client = await getClient();
+export default function log(
+  client: Client,
+  msg: string | MessagePayload | MessageCreateOptions
+) {
   const channel = client.channels.resolve(config.get("loggingChannel"));
   if (!channel) {
     console.warn("Logging channel not found!");
-  } else if (!channel.isText()) {
+    return;
+  } else if (!channel.isTextBased()) {
     console.warn("Logging channel is not a text channel!");
+    return;
   } else {
-    loggingChannel = channel;
+    console.log("Logging channel", (<TextChannel>channel).name);
   }
-})();
 
-export default function log(msg: string | MessagePayload | MessageOptions) {
-  if (!loggingChannel) return;
-  loggingChannel.send(msg);
+  channel.send(msg);
 }

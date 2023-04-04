@@ -1,7 +1,13 @@
 import { ApplyOptions } from "@sapphire/decorators";
 import { Command, CommandOptionsRunTypeEnum } from "@sapphire/framework";
 import config from "config";
-import { MessageActionRow, MessageButton, Permissions } from "discord.js";
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ChatInputCommandInteraction,
+  PermissionsBitField,
+} from "discord.js";
 
 @ApplyOptions<Command.Options>({
   description: "Sends the bot's verification prompt in this channel",
@@ -13,24 +19,22 @@ export class UserCommand extends Command {
       builder //
         .setName(this.name)
         .setDescription(this.description)
-        .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_MESSAGES)
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages)
     );
   }
 
-  public override async chatInputRun(
-    interaction: Command.ChatInputInteraction
-  ) {
-    const row = new MessageActionRow({
+  public override async chatInputRun(interaction: ChatInputCommandInteraction) {
+    const row = new ActionRowBuilder<ButtonBuilder>({
       components: [
-        new MessageButton({
+        new ButtonBuilder({
           customId: "verify",
           label: "Verify",
-          style: "PRIMARY",
+          style: ButtonStyle.Primary,
         }),
-        new MessageButton({
+        new ButtonBuilder({
           customId: "help",
           label: "Help",
-          style: "SECONDARY",
+          style: ButtonStyle.Primary,
         }),
       ],
     });

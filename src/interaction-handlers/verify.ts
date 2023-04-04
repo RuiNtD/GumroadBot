@@ -5,12 +5,12 @@ import {
 } from "@sapphire/framework";
 import config from "config";
 import {
+  ActionRowBuilder,
   ButtonInteraction,
   GuildMemberRoleManager,
-  MessageActionRow,
-  Modal,
-  ModalActionRowComponent,
-  TextInputComponent,
+  ModalBuilder,
+  TextInputBuilder,
+  TextInputStyle,
 } from "discord.js";
 
 @ApplyOptions<InteractionHandler.Options>({
@@ -38,15 +38,15 @@ export class ModalHandler extends InteractionHandler {
         ephemeral: true,
       });
 
-    const modal = new Modal({
+    const modal = new ModalBuilder({
       customId: "verify",
       title: "License Verification",
       components: [
-        new MessageActionRow<ModalActionRowComponent>().addComponents(
-          new TextInputComponent({
+        new ActionRowBuilder<TextInputBuilder>().addComponents(
+          new TextInputBuilder({
             customId: "licenseKey",
             label: "What's your license key?",
-            style: "SHORT",
+            style: TextInputStyle.Short,
             required: true,
             placeholder: "00000000-00000000-00000000-00000000",
             minLength: 32,

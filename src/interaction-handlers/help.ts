@@ -4,10 +4,11 @@ import {
   InteractionHandlerTypes,
 } from "@sapphire/framework";
 import {
+  ActionRowBuilder,
+  ButtonBuilder,
   ButtonInteraction,
-  MessageActionRow,
-  MessageButton,
-  MessageEmbed,
+  ButtonStyle,
+  EmbedBuilder,
 } from "discord.js";
 
 const reply = {
@@ -19,7 +20,7 @@ const reply = {
     "Once you have your license key, click `Verify` below to continue.",
 
   embeds: [
-    new MessageEmbed({
+    new EmbedBuilder({
       description:
         "Your product key will be listed on your downloads page here:",
       image: {
@@ -29,30 +30,30 @@ const reply = {
   ],
 
   components: [
-    new MessageActionRow({
+    new ActionRowBuilder<ButtonBuilder>({
       components: [
-        new MessageButton({
-          style: "PRIMARY",
+        new ButtonBuilder({
+          style: ButtonStyle.Primary,
           label: "Verify",
           customId: "verify",
         }),
-        new MessageButton({
-          style: "LINK",
+        new ButtonBuilder({
+          style: ButtonStyle.Link,
           label: "Purchase Hybrid V2",
           url: "https://gumroad.com/l/HybridV2",
         }),
       ],
     }),
 
-    new MessageActionRow({
+    new ActionRowBuilder<ButtonBuilder>({
       components: [
-        new MessageButton({
-          style: "LINK",
+        new ButtonBuilder({
+          style: ButtonStyle.Link,
           label: "Gumroad Library",
           url: "https://app.gumroad.com/library?query=Hybrid+V2",
         }),
-        new MessageButton({
-          style: "LINK",
+        new ButtonBuilder({
+          style: ButtonStyle.Link,
           label: "Find my License Key",
           url: "https://app.gumroad.com/license-key-lookup",
         }),
