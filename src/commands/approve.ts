@@ -7,10 +7,10 @@ import {
   MessageOptions,
   Permissions,
 } from "discord.js";
-import { LicenseResponse, verify } from "../lib/api";
-import { error, success } from "../lib/embeds";
-import log from "../lib/log";
-import { formatUser } from "../lib/utils";
+import { LicenseResponse, verify } from "../lib/api.js";
+import { error, success } from "../lib/embeds.js";
+import log from "../lib/log.js";
+import { formatUser } from "../lib/utils.js";
 
 @ApplyOptions<Command.Options>({
   description: "Manually approve a user",
