@@ -1,3 +1,4 @@
+import process from "node:process";
 import config from "config";
 import { SapphireClient } from "@sapphire/framework";
 
