@@ -8,26 +8,26 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@sapphire/decorators": "^6.0.1",
-    "@sapphire/fetch": "^2.4.1",
-    "@sapphire/framework": "^4.5.0",
-    "@sapphire/plugin-editable-commands": "^3.0.2",
-    "@sapphire/plugin-subcommands": "^4.0.1",
-    "axios": "^1.4.0",
+    "@sapphire/decorators": "^6.0.3",
+    "@sapphire/fetch": "^2.4.2",
+    "@sapphire/framework": "^4.8.5",
+    "@sapphire/plugin-editable-commands": "^3.1.0",
+    "@sapphire/plugin-subcommands": "^4.3.0",
+    "axios": "^1.6.3",
     "config": "^3.3.9",
     "discord.js": "~14.11.0",
     "js-yaml": "^4.1.0",
-    "tslib": "^2.6.0"
+    "tslib": "^2.6.2"
   },
   "devDependencies": {
-    "@tsconfig/node-lts": "^18.12.3",
-    "@types/config": "^3.3.0",
-    "@types/node": "^20.3.3",
-    "@typescript-eslint/eslint-plugin": "^5.61.0",
-    "@typescript-eslint/parser": "^5.61.0",
-    "del-cli": "^5.0.0",
-    "eslint": "^8.44.0",
+    "@tsconfig/node-lts": "^18.12.5",
+    "@types/config": "^3.3.3",
+    "@types/node": "^20.10.6",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
+    "del-cli": "^5.1.0",
+    "eslint": "^8.56.0",
     "prettier": "3.0.0",
-    "typescript": "^5.1.6"
+    "typescript": "^5.3.3"
   }
 }
