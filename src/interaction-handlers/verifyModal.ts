@@ -21,7 +21,7 @@ import log from "../lib/log.js";
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.ModalSubmit,
 })
-export class ModalHandler extends InteractionHandler {
+export class VerifyModalHandler extends InteractionHandler {
   public override parse(interaction: ModalSubmitInteraction) {
     if (interaction.customId !== "verify") return this.none();
 

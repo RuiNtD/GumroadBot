@@ -65,7 +65,7 @@ const reply = {
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button,
 })
-export class ButtonHandler extends InteractionHandler {
+export class HelpBtnHandler extends InteractionHandler {
   public override parse(interaction: ButtonInteraction) {
     if (interaction.customId !== "help") return this.none();
 

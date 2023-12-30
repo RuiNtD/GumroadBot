@@ -18,7 +18,7 @@ const debug: boolean = config.get("debug");
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button,
 })
-export class ModalHandler extends InteractionHandler {
+export class VerifyBtnHandler extends InteractionHandler {
   public override parse(interaction: ButtonInteraction) {
     if (interaction.customId !== "verify") return this.none();
 
