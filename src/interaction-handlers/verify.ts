@@ -13,6 +13,8 @@ import {
   TextInputStyle,
 } from "discord.js";
 
+const debug: boolean = config.get("debug");
+
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button,
 })
@@ -49,7 +51,7 @@ export class ModalHandler extends InteractionHandler {
             style: TextInputStyle.Short,
             required: true,
             placeholder: "00000000-00000000-00000000-00000000",
-            minLength: 32,
+            minLength: debug ? 4 : 32,
             maxLength: 35,
           }),
         ),
