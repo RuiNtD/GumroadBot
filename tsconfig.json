@@ -1,7 +1,6 @@
 {
   "extends": "@tsconfig/node-lts/tsconfig.json",
   "compilerOptions": {
-    "module": "es2022",
     "rootDir": "src",
     "outDir": "dist",
     "sourceMap": true,
