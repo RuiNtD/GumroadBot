@@ -32,6 +32,9 @@ dependencies:
   js-yaml:
     specifier: ^4.1.0
     version: 4.1.0
+  luxon:
+    specifier: ^3.4.4
+    version: 3.4.4
   tslib:
     specifier: ^2.6.2
     version: 2.6.2
@@ -46,6 +49,9 @@ devDependencies:
   '@types/config':
     specifier: ^3.3.3
     version: 3.3.3
+  '@types/luxon':
+    specifier: ^3.3.7
+    version: 3.3.7
   '@types/node':
     specifier: ^20.10.6
     version: 20.10.6
@@ -383,6 +389,10 @@ packages:
 
   /@types/json-schema@7.0.15:
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
+    dev: true
+
+  /@types/luxon@3.3.7:
+    resolution: {integrity: sha512-gKc9P2d4g5uYwmy4s/MO/yOVPmvHyvzka1YH6i5dM03UrFofHSmgc0D0ymbDRStFWHusk6cwwF6nhLm/ckBbbQ==}
     dev: true
 
   /@types/minimist@1.2.5:
@@ -1310,6 +1320,11 @@ packages:
     dependencies:
       yallist: 4.0.0
     dev: true
+
+  /luxon@3.4.4:
+    resolution: {integrity: sha512-zobTr7akeGHnv7eBOXcRgMeCP6+uyYsczwmeRCauvpvaAltgNyTbLH/+VaEAPUeWBT+1GuNmz4wC/6jtQzbbVA==}
+    engines: {node: '>=12'}
+    dev: false
 
   /magic-bytes.js@1.7.0:
     resolution: {integrity: sha512-YzVU2+/hrjwx8xcgAw+ffNq3jkactpj+f1iSL4LonrFKhvnwDzHSqtFdk/MMRP53y9ScouJ7cKEnqYsJwsHoYA==}

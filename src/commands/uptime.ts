@@ -1,6 +1,7 @@
 import { ApplyOptions } from "@sapphire/decorators";
 import { Command } from "@sapphire/framework";
 import { ChatInputCommandInteraction } from "discord.js";
+import { Duration } from "luxon";
 
 @ApplyOptions<Command.Options>({
   description: "Shows bot uptime",
@@ -15,23 +16,17 @@ export class UserCommand extends Command {
   }
 
   public override async chatInputRun(interaction: ChatInputCommandInteraction) {
-    const { uptime } = interaction.client,
-      totalSeconds = Math.floor(uptime / 1000),
-      totalMinutes = Math.floor(uptime / (1000 * 60)),
-      totalHours = Math.floor(uptime / (1000 * 60 * 60)),
-      seconds = Math.floor(totalSeconds % 60),
-      minutes = Math.floor(totalMinutes % 60),
-      hours = Math.floor(totalHours % 24),
-      days = Math.floor(uptime / (1000 * 60 * 60 * 24));
-
-    let content = `I have been running for `;
-    if (days) content += `${days}d `;
-    if (totalHours) content += `${hours}h `;
-    if (totalMinutes) content += `${minutes}m `;
-    content += `${seconds}s.`;
+    const { uptime } = interaction.client;
+    const dur = Duration.fromMillis(uptime)
+      .rescale()
+      .set({ millisecond: 0 })
+      .rescale();
+    const res = dur.toHuman({
+      unitDisplay: "narrow",
+    });
 
     return interaction.reply({
-      content,
+      content: `I have been running for ${res}.`,
       ephemeral: interaction.inGuild(),
     });
   }
