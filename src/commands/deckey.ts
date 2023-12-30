@@ -2,7 +2,7 @@ import { ApplyOptions } from "@sapphire/decorators";
 import { Command, CommandOptionsRunTypeEnum } from "@sapphire/framework";
 import { ChatInputCommandInteraction, PermissionsBitField } from "discord.js";
 import { decUses } from "../lib/api.js";
-import { error, success } from "../lib/embeds.js";
+import * as emoji from "../lib/emoji.js";
 
 @ApplyOptions<Command.Options>({
   description: "Decrement the use count on a Hybrid V2 license",
@@ -30,13 +30,13 @@ export class UserCommand extends Command {
 
     if (!data.success) {
       return interaction.reply({
-        embeds: [error(data.message)],
+        content: `${emoji.cross} ${data.message}`,
         ephemeral: true,
       });
     }
 
     return interaction.reply({
-      embeds: [success(`This license now has a use count of ${data.uses}.`)],
+      content: `${emoji.check} This license now has a use count of ${data.uses}.`,
       ephemeral: true,
     });
   }

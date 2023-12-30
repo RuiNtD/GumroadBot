@@ -1,6 +1,6 @@
 import { ApplyOptions } from "@sapphire/decorators";
 import { Command, CommandOptionsRunTypeEnum } from "@sapphire/framework";
-import config from "config";
+import * as config from "../lib/config.js";
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -23,7 +23,9 @@ export class UserCommand extends Command {
     );
   }
 
-  public override async chatInputRun(interaction: ChatInputCommandInteraction) {
+  public override async chatInputRun(
+    interaction: ChatInputCommandInteraction<"cached">,
+  ) {
     const row = new ActionRowBuilder<ButtonBuilder>({
       components: [
         new ButtonBuilder({
@@ -39,17 +41,19 @@ export class UserCommand extends Command {
       ],
     });
 
-    const content =
-      "To receive support for your Hybrid V2 purchase, you will need to verify your license key.\n" +
-      "Click the button below to verify your license key.\n" +
-      "\n" +
-      `For bot support, contact <@${config.get("devID")}>.\n` +
-      `For purchase support, contact <@${config.get("pupwolfID")}>.`;
+    const devPing = config.getDevPing(interaction.client),
+      adminPing = config.getAdminPing(interaction.guild),
+      content =
+        "To receive support for your purchase, you will need to verify your license key.\n" +
+        "Click the button below to verify your license key.\n" +
+        "\n" +
+        `For bot support, contact ${devPing}\n` +
+        `For purchase support, contact ${adminPing}`;
     interaction.channel?.send({
       content,
       components: [row],
     });
 
-    return interaction.reply({ content: "Done", ephemeral: true });
+    return interaction.reply({ content: "Done.", ephemeral: true });
   }
 }

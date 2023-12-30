@@ -16,7 +16,7 @@ const reply = {
 
   content:
     "You can find your license key on your Gumroad receipt or downloads page.\n" +
-    "You can also use the buttons below to find your license key or purchase Hybrid V2 if you don't already have it.\n" +
+    "You can also use the buttons below to find your license key.\n" +
     "Once you have your license key, click `Verify` below to continue.",
 
   embeds: [
@@ -37,11 +37,6 @@ const reply = {
           label: "Verify",
           customId: "verify",
         }),
-        new ButtonBuilder({
-          style: ButtonStyle.Link,
-          label: "Purchase Hybrid V2",
-          url: "https://gumroad.com/l/HybridV2",
-        }),
       ],
     }),
 
@@ -50,7 +45,7 @@ const reply = {
         new ButtonBuilder({
           style: ButtonStyle.Link,
           label: "Gumroad Library",
-          url: "https://app.gumroad.com/library?query=Hybrid+V2",
+          url: "https://app.gumroad.com/library",
         }),
         new ButtonBuilder({
           style: ButtonStyle.Link,
@@ -68,7 +63,6 @@ const reply = {
 export class HelpBtnHandler extends InteractionHandler {
   public override parse(interaction: ButtonInteraction) {
     if (interaction.customId !== "help") return this.none();
-
     return this.some();
   }
 

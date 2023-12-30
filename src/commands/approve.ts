@@ -1,17 +1,10 @@
 import { ApplyOptions } from "@sapphire/decorators";
 import { Command, CommandOptionsRunTypeEnum } from "@sapphire/framework";
-import config from "config";
-import {
-  ChatInputCommandInteraction,
-  EmbedBuilder,
-  GuildMemberRoleManager,
-  MessageCreateOptions,
-  PermissionsBitField,
-} from "discord.js";
+import { ChatInputCommandInteraction, PermissionsBitField } from "discord.js";
 import { LicenseResponse, verify } from "../lib/api.js";
-import { error, success } from "../lib/embeds.js";
-import log from "../lib/log.js";
-import { formatUser } from "../lib/utils.js";
+import log, { createEmbed } from "../lib/log.js";
+import { giveVerifiedRole, hasVerifiedRole } from "../lib/utils.js";
+import * as emoji from "../lib/emoji.js";
 
 @ApplyOptions<Command.Options>({
   description: "Manually approve a user",
@@ -23,7 +16,7 @@ export class UserCommand extends Command {
       builder //
         .setName(this.name)
         .setDescription(this.description)
-        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageRoles)
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
         .addUserOption((option) =>
           option
             .setName("user")
@@ -39,22 +32,17 @@ export class UserCommand extends Command {
     );
   }
 
-  public override async chatInputRun(interaction: ChatInputCommandInteraction) {
+  public override async chatInputRun(
+    interaction: ChatInputCommandInteraction<"cached">,
+  ) {
     const user = interaction.options.getUser("user", true);
     const key = interaction.options.getString("key", false);
     const member = interaction.options.getMember("user");
     if (!member) return;
 
-    console.log("Manual Verifying", {
-      user: `${user.tag} (${user.id})`,
-      licenseKey: key,
-      mod: `${interaction.user.tag} (${user})`,
-    });
-
-    const roleManager = <GuildMemberRoleManager>member.roles;
-    if (roleManager?.cache.has(config.get("verifiedRole"))) {
+    if (hasVerifiedRole(member)) {
       return interaction.reply({
-        content: "This user is already verified",
+        content: `${emoji.question} This user is already verified.`,
         ephemeral: true,
       });
     }
@@ -64,61 +52,36 @@ export class UserCommand extends Command {
     if (data && !data.success) {
       console.log(data);
       return interaction.reply({
+        content: `${emoji.cross} ${data.message}`,
         ephemeral: true,
-        embeds: [error(data.message)],
       });
     }
 
     try {
-      roleManager.add(config.get("verifiedRole"), "Verified License");
+      await giveVerifiedRole(member, "Verified License");
     } catch (e) {
       console.log(e);
       return interaction.reply(
-        `${interaction.user} ${user.tag}'s license key was verified, but something went wrong giving them the verified role.`,
+        `${interaction.user}:\n` +
+          `${emoji.warning} ${user.tag}'s license key was verified, but something went wrong giving them the verified role.`,
       );
     }
 
-    let fields = [
-      { name: "User", value: user.toString(), inline: true },
-      { name: "User ID", value: user.id, inline: true },
-    ];
-    if (data) {
-      fields = fields.concat([
-        { name: "Uses", value: `${data.uses}`, inline: true },
-        {
-          name: "License Key",
-          value: key || "",
-          inline: false,
-        },
-      ]);
-    }
-
-    const logMsg: MessageCreateOptions = {
+    log(interaction.guild, {
       embeds: [
-        new EmbedBuilder()
-          .setTitle(key ? "Verified by Mod" : "Manually Approved by Mod")
-          .setThumbnail(user.displayAvatarURL())
-          .addFields(fields)
-          .setFooter({
-            text: formatUser(interaction.user),
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setTimestamp(),
+        createEmbed({
+          title: key ? "Verified by Admin" : "Manually Approved by Admin",
+          user,
+          uses: data?.uses,
+          key: key || undefined,
+          staff: interaction.user,
+        }),
       ],
-    };
-    if (data && data.uses > 1) logMsg.content = `<@${config.get("pupwolfID")}>`;
-    log(interaction.client, logMsg);
-    console.log("Success", user.tag);
+    });
 
     return interaction.reply({
+      content: `${emoji.check} ${user.tag} should now be verified.`,
       ephemeral: true,
-      embeds: [
-        success(
-          `${user.tag} should now have access to <#${config.get(
-            "grantedChannel",
-          )}>.`,
-        ),
-      ],
     });
   }
 }

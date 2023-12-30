@@ -3,7 +3,7 @@ import config from "config";
 import { SapphireClient } from "@sapphire/framework";
 
 const client = new SapphireClient({
-  intents: ["Guilds"],
+  intents: ["Guilds", "GuildMembers"],
 });
 
 client.on("ready", () => {

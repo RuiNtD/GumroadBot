@@ -3,20 +3,19 @@ import {
   InteractionHandler,
   InteractionHandlerTypes,
 } from "@sapphire/framework";
-import config from "config";
 import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  EmbedBuilder,
-  GuildMemberRoleManager,
   MessageCreateOptions,
   ModalSubmitInteraction,
   PermissionsBitField,
 } from "discord.js";
 import { verify } from "../lib/api.js";
-import { error, success } from "../lib/embeds.js";
-import log from "../lib/log.js";
+import log, { createEmbed } from "../lib/log.js";
+import { giveVerifiedRole, hasVerifiedRole } from "../lib/utils.js";
+import { getAdminPing } from "../lib/config.js";
+import * as emoji from "../lib/emoji.js";
 
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.ModalSubmit,
@@ -30,36 +29,21 @@ export class VerifyModalHandler extends InteractionHandler {
 
   @RequiresClientPermissions(PermissionsBitField.Flags.ManageRoles)
   public async run(
-    interaction: ModalSubmitInteraction,
+    interaction: ModalSubmitInteraction<"cached">,
     key: InteractionHandler.ParseResult<this>,
   ) {
-    console.log("Verifying", {
-      discordTag: interaction.user.tag,
-      userID: interaction.user.id,
-      licenseKey: key,
-    });
-
-    const roleManager = <GuildMemberRoleManager>interaction.member?.roles;
-    if (roleManager?.cache.has(config.get("verifiedRole"))) {
+    if (hasVerifiedRole(interaction.member))
       return interaction.reply({
-        embeds: [
-          {
-            title: "You are already verified",
-            description: `Get your support in <#${config.get(
-              "grantedChannel",
-            )}>`,
-          },
-        ],
+        content: "You are already verified.",
         ephemeral: true,
       });
-    }
 
-    const data = await verify(key);
+    const data = await verify(key, false);
     if (!data.success) {
       console.log(data);
       return interaction.reply({
+        content: `${emoji.cross} ${data.message}`,
         ephemeral: true,
-        embeds: [error(data.message)],
         components: [
           new ActionRowBuilder<ButtonBuilder>().addComponents(
             new ButtonBuilder({
@@ -77,43 +61,76 @@ export class VerifyModalHandler extends InteractionHandler {
       });
     }
 
-    try {
-      roleManager.add(config.get("verifiedRole"), "Verified License");
-    } catch (e) {
-      console.log(e);
-      return interaction.reply(
-        `${interaction.user} Your license key was verified, but something went wrong giving you the verified role.`,
-      );
+    if (data.uses < 1) {
+      await verify(key);
+      try {
+        await giveVerifiedRole(interaction.member, "Verified License");
+      } catch (e) {
+        console.log(e);
+        return interaction.reply(
+          `${interaction.user}:\n` +
+            `${emoji.warning} Your license key was verified, but something went wrong giving you the verified role.`,
+        );
+      }
+
+      const logMsg: MessageCreateOptions = {
+        embeds: [
+          createEmbed({
+            title: "Verified",
+            user: interaction.user,
+            uses: data.uses,
+            key,
+          }),
+        ],
+      };
+      log(interaction.guild, logMsg);
+
+      const usesPlural = data.uses == 1 ? "time" : "times";
+      return interaction.reply({
+        content:
+          `${emoji.check} You should now be verified.\n` +
+          `This license has now been used ${data.uses} ${usesPlural}.`,
+        ephemeral: true,
+      });
+    } else {
+      const row = new ActionRowBuilder<ButtonBuilder>({
+        components: [
+          new ButtonBuilder({
+            customId: "approve",
+            label: "Approve",
+            style: ButtonStyle.Primary,
+          }),
+          new ButtonBuilder({
+            customId: "deny",
+            label: "Deny",
+            style: ButtonStyle.Danger,
+          }),
+        ],
+      });
+      const admin = getAdminPing(interaction.guild);
+
+      const logMsg: MessageCreateOptions = {
+        content: `${admin}: User requires manual approval.`,
+        embeds: [
+          createEmbed({
+            user: interaction.user,
+            uses: data.uses,
+            key,
+          }).setDescription(
+            "Clicking a button below will DM the user with the results.\n" +
+              "You can also delete this message to silently deny it.",
+          ),
+        ],
+        components: [row],
+      };
+      log(interaction.guild, logMsg);
+
+      return interaction.reply({
+        content:
+          `${emoji.check} Your license key has been verified.\n` +
+          `Please wait for an admin to manually approve you.`,
+        ephemeral: true,
+      });
     }
-
-    const logMsg: MessageCreateOptions = {
-      embeds: [
-        new EmbedBuilder()
-          .setTitle("Verified")
-          .setThumbnail(interaction.user.displayAvatarURL())
-          .addFields([
-            { name: "User", value: interaction.user.toString(), inline: true },
-            { name: "User ID", value: interaction.user.id, inline: true },
-            { name: "Uses", value: `${data.uses}`, inline: true },
-            { name: "License Key", value: key, inline: false },
-          ])
-          .setTimestamp(),
-      ],
-    };
-    if (data.uses > 1) logMsg.content = `<@${config.get("pupwolfID")}>`;
-    log(interaction.client, logMsg);
-    console.log("Success", interaction.user.tag);
-
-    const usesPlural = data.uses == 1 ? "time" : "times";
-    return interaction.reply({
-      ephemeral: true,
-      embeds: [
-        success(
-          `You should now have access to <#${config.get(
-            "grantedChannel",
-          )}>.\nThis license has now been used ${data.uses} ${usesPlural}.`,
-        ),
-      ],
-    });
   }
 }

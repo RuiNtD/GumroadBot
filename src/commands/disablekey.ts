@@ -6,9 +6,9 @@ import {
   PermissionsBitField,
 } from "discord.js";
 import { disable } from "../lib/api.js";
-import { error, success } from "../lib/embeds.js";
 import log from "../lib/log.js";
 import { formatUser } from "../lib/utils.js";
+import * as emoji from "../lib/emoji.js";
 
 @ApplyOptions<Command.Options>({
   description: "Disable a Hybrid V2 license",
@@ -20,7 +20,7 @@ export class UserCommand extends Command {
       builder //
         .setName(this.name)
         .setDescription(this.description)
-        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageRoles)
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
         .addStringOption((option) =>
           option
             .setName("key")
@@ -31,17 +31,19 @@ export class UserCommand extends Command {
   }
 
   public override async chatInputRun(interaction: ChatInputCommandInteraction) {
+    if (!interaction.inCachedGuild()) return;
+
     const key = interaction.options.getString("key", true);
     const data = await disable(key);
 
     if (!data.success) {
       return interaction.reply({
-        embeds: [error(data.message)],
+        content: `${emoji.cross} ${data.message}`,
         ephemeral: true,
       });
     }
 
-    log(interaction.client, {
+    log(interaction.guild, {
       embeds: [
         new EmbedBuilder()
           .setColor("Red")
@@ -59,7 +61,7 @@ export class UserCommand extends Command {
     });
 
     return interaction.reply({
-      embeds: [success(`This license is now disabled.`)],
+      content: `${emoji.check} This license is now disabled.`,
       ephemeral: true,
     });
   }

@@ -3,17 +3,18 @@ import {
   InteractionHandler,
   InteractionHandlerTypes,
 } from "@sapphire/framework";
-import config from "config";
+import * as config from "../lib/config.js";
 import {
   ActionRowBuilder,
   ButtonInteraction,
-  GuildMemberRoleManager,
   ModalBuilder,
   TextInputBuilder,
   TextInputStyle,
 } from "discord.js";
+import { hasVerifiedRole } from "../lib/utils.js";
+import * as emoji from "../lib/emoji.js";
 
-const debug: boolean = config.get("debug");
+const { debug } = config;
 
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button,
@@ -21,22 +22,13 @@ const debug: boolean = config.get("debug");
 export class VerifyBtnHandler extends InteractionHandler {
   public override parse(interaction: ButtonInteraction) {
     if (interaction.customId !== "verify") return this.none();
-
     return this.some();
   }
 
-  public async run(interaction: ButtonInteraction) {
-    const roleManager = <GuildMemberRoleManager>interaction.member?.roles;
-    if (roleManager?.cache.has(config.get("verifiedRole")))
+  public async run(interaction: ButtonInteraction<"cached">) {
+    if (hasVerifiedRole(interaction.member))
       return interaction.reply({
-        embeds: [
-          {
-            title: "You are already verified",
-            description: `Get your support in <#${config.get(
-              "grantedChannel",
-            )}>`,
-          },
-        ],
+        content: `${emoji.question} You are already verified.`,
         ephemeral: true,
       });
 
@@ -50,7 +42,9 @@ export class VerifyBtnHandler extends InteractionHandler {
             label: "What's your license key?",
             style: TextInputStyle.Short,
             required: true,
-            placeholder: "00000000-00000000-00000000-00000000",
+            placeholder: debug
+              ? "test0"
+              : "00000000-00000000-00000000-00000000",
             minLength: debug ? 4 : 32,
             maxLength: 35,
           }),

@@ -22,27 +22,34 @@ const api = axios.create({
 });
 const product_permalink: string = config.get("permalink");
 const access_token: string = config.get("accessToken");
-const increment_uses_count = `${config.get("incrementUses")}`;
+const increment_uses_count: boolean = config.get("incrementUses");
 
-function debugKey(key: string): LicenseResponse | undefined {
+function debugKey(
+  key: string,
+  use: boolean = increment_uses_count,
+): LicenseResponse | undefined {
   if (!debug) return;
   if (!key.toLowerCase().startsWith("test")) return;
 
   const count = Number(key.substring(4)) || 0;
   return {
     success: true,
-    uses: count,
+    uses: count + (use ? 1 : 0),
   };
 }
 
-export async function verify(key: string): Promise<LicenseResponse> {
+export async function verify(
+  key: string,
+  use?: boolean,
+): Promise<LicenseResponse> {
+  if (use === undefined) use = increment_uses_count;
   return LicenseResponse.parse(
-    debugKey(key) ||
+    debugKey(key, use) ||
       (
         await api.post("licenses/verify", {
           product_permalink,
           license_key: key,
-          increment_uses_count,
+          increment_uses_count: `${use}`,
         })
       ).data,
   );
