@@ -19,7 +19,7 @@ export class UserCommand extends Command {
       builder //
         .setName(this.name)
         .setDescription(this.description)
-        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages)
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages),
     );
   }
 

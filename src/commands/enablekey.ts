@@ -22,8 +22,8 @@ export class UserCommand extends Command {
           option
             .setName("key")
             .setDescription("Hybrid V2 license key")
-            .setRequired(true)
-        )
+            .setRequired(true),
+        ),
     );
   }
 

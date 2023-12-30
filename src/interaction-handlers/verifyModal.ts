@@ -31,7 +31,7 @@ export class VerifyModalHandler extends InteractionHandler {
   @RequiresClientPermissions(PermissionsBitField.Flags.ManageRoles)
   public async run(
     interaction: ModalSubmitInteraction,
-    key: InteractionHandler.ParseResult<this>
+    key: InteractionHandler.ParseResult<this>,
   ) {
     console.log("Verifying", {
       discordTag: interaction.user.tag,
@@ -46,7 +46,7 @@ export class VerifyModalHandler extends InteractionHandler {
           {
             title: "You are already verified",
             description: `Get your support in <#${config.get(
-              "grantedChannel"
+              "grantedChannel",
             )}>`,
           },
         ],
@@ -71,7 +71,7 @@ export class VerifyModalHandler extends InteractionHandler {
               customId: "help",
               label: "Help",
               style: ButtonStyle.Secondary,
-            })
+            }),
           ),
         ],
       });
@@ -82,7 +82,7 @@ export class VerifyModalHandler extends InteractionHandler {
     } catch (e) {
       console.log(e);
       return interaction.reply(
-        `${interaction.user} Your license key was verified, but something went wrong giving you the verified role.`
+        `${interaction.user} Your license key was verified, but something went wrong giving you the verified role.`,
       );
     }
 
@@ -110,8 +110,8 @@ export class VerifyModalHandler extends InteractionHandler {
       embeds: [
         success(
           `You should now have access to <#${config.get(
-            "grantedChannel"
-          )}>.\nThis license has now been used ${data.uses} ${usesPlural}.`
+            "grantedChannel",
+          )}>.\nThis license has now been used ${data.uses} ${usesPlural}.`,
         ),
       ],
     });

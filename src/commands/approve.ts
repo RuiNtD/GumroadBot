@@ -28,14 +28,14 @@ export class UserCommand extends Command {
           option
             .setName("user")
             .setDescription("User to approve")
-            .setRequired(true)
+            .setRequired(true),
         )
         .addStringOption((option) =>
           option
             .setName("key")
             .setDescription("Hybrid V2 license key")
-            .setRequired(false)
-        )
+            .setRequired(false),
+        ),
     );
   }
 
@@ -74,7 +74,7 @@ export class UserCommand extends Command {
     } catch (e) {
       console.log(e);
       return interaction.reply(
-        `${interaction.user} ${user.tag}'s license key was verified, but something went wrong giving them the verified role.`
+        `${interaction.user} ${user.tag}'s license key was verified, but something went wrong giving them the verified role.`,
       );
     }
 
@@ -115,8 +115,8 @@ export class UserCommand extends Command {
       embeds: [
         success(
           `${user.tag} should now have access to <#${config.get(
-            "grantedChannel"
-          )}>.`
+            "grantedChannel",
+          )}>.`,
         ),
       ],
     });

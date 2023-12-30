@@ -8,7 +8,7 @@ import config from "config";
 
 export default function log(
   client: Client,
-  msg: string | MessagePayload | MessageCreateOptions
+  msg: string | MessagePayload | MessageCreateOptions,
 ) {
   const channel = client.channels.resolve(config.get("loggingChannel"));
   if (!channel) {
