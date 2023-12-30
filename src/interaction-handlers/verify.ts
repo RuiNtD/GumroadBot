@@ -31,7 +31,7 @@ export class ModalHandler extends InteractionHandler {
           {
             title: "You are already verified",
             description: `Get your support in <#${config.get(
-              "grantedChannel"
+              "grantedChannel",
             )}>`,
           },
         ],
@@ -51,7 +51,7 @@ export class ModalHandler extends InteractionHandler {
             placeholder: "00000000-00000000-00000000-00000000",
             minLength: 32,
             maxLength: 35,
-          })
+          }),
         ),
       ],
     });
