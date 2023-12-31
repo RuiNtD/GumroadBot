@@ -17,11 +17,11 @@ export class AutocompleteProductHandler extends InteractionHandler {
   }
 
   public override async run(interaction: AutocompleteInteraction<"cached">) {
-    const { guild, respond } = interaction;
+    const { guild } = interaction;
     const products = (await getProducts(guild)).map((v) => ({
       name: v.label,
       value: v.value,
     }));
-    return respond(products);
+    return interaction.respond(products);
   }
 }

@@ -39,17 +39,19 @@ export class VerifyModalHandler extends InteractionHandler {
     interaction: ModalSubmitInteraction<"cached">,
     prodId: InteractionHandler.ParseResult<this>,
   ) {
-    const { fields, guild, member, user, reply } = interaction;
+    const { fields, guild, member, user } = interaction;
     const product = await getProduct(guild, prodId);
     if (!product) return;
 
     if (hasVerifiedRole(member, product))
-      return reply(ephemeral(`${emoji.question} You are already verified.`));
+      return interaction.reply(
+        ephemeral(`${emoji.question} You are already verified.`),
+      );
 
     const key = fields.getTextInputValue("licenseKey");
     const data = await verify(product, key, false);
     if (!data.success) {
-      return reply({
+      return interaction.reply({
         content: `${emoji.cross} ${data.message}`,
         ephemeral: true,
         components: [
@@ -75,7 +77,7 @@ export class VerifyModalHandler extends InteractionHandler {
         await giveVerifiedRole(member, product, "Verified License");
       } catch (e) {
         console.log(e);
-        return reply(
+        return interaction.reply(
           `${user}:\n` +
             `${emoji.warning} Your license key was verified, but something went wrong giving you the verified role.`,
         );
@@ -95,7 +97,7 @@ export class VerifyModalHandler extends InteractionHandler {
       log(guild, logMsg);
 
       const usesPlural = data.uses == 1 ? "time" : "times";
-      return reply(
+      return interaction.reply(
         ephemeral(
           `${emoji.check} You should now be verified.\n` +
             `This license has now been used ${data.uses} ${usesPlural}.`,
@@ -135,7 +137,7 @@ export class VerifyModalHandler extends InteractionHandler {
       };
       log(guild, logMsg);
 
-      return reply(
+      return interaction.reply(
         ephemeral(
           `${emoji.check} Your license key has been verified.\n` +
             `Please wait for an admin to manually approve you.`,

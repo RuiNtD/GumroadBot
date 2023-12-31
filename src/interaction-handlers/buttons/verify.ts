@@ -8,7 +8,7 @@ import {
   ButtonInteraction,
   StringSelectMenuBuilder,
 } from "discord.js";
-import * as config from "../lib/config.js";
+import * as config from "../../lib/config.js";
 
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button,

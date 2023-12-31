@@ -9,6 +9,7 @@ import {
   PermissionsBitField,
 } from "discord.js";
 import * as emoji from "../lib/emoji.js";
+import { ephemeral, getProduct } from "../lib/utils.js";
 
 @ApplyOptions<Command.Options>({
   description: "Sends the bot's verification prompt in this channel",
@@ -20,17 +21,32 @@ export class UserCommand extends Command {
       builder //
         .setName(this.name)
         .setDescription(this.description)
-        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages),
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages)
+        .addStringOption((option) =>
+          option
+            .setName("product")
+            .setDescription("Product ID")
+            .setRequired(false)
+            .setAutocomplete(true),
+        ),
     );
   }
 
   public override async chatInputRun(
     interaction: ChatInputCommandInteraction<"cached">,
   ) {
+    const { guild, options } = interaction;
+    const product = await getProduct(
+      guild,
+      options.getString("product", false) || "",
+    );
+    let customId = "verify";
+    if (product) customId += `:${product.value}`;
+
     const row = new ActionRowBuilder<ButtonBuilder>({
       components: [
         new ButtonBuilder({
-          customId: "verify",
+          customId,
           label: "Verify",
           style: ButtonStyle.Primary,
         }),
@@ -55,6 +71,6 @@ export class UserCommand extends Command {
       components: [row],
     });
 
-    return interaction.reply({ content: emoji.check, ephemeral: true });
+    return interaction.reply(ephemeral(emoji.check));
   }
 }

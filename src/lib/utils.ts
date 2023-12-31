@@ -22,8 +22,10 @@ export async function giveVerifiedRole(
 
 export async function getProduct(
   guild: Guild,
-  id: string,
+  id?: string,
 ): Promise<Product | undefined> {
+  if (!id) return;
+
   const products = await getProducts(guild);
   return products.find((v) => v.value == id);
 }

@@ -20,7 +20,7 @@ export class VerifySelectHandler extends InteractionHandler {
   }
 
   public async run(interaction: StringSelectMenuInteraction<"cached">) {
-    const { guild, member, reply } = interaction;
+    const { guild, member } = interaction;
     const prodId = interaction.values.at(0);
     if (!prodId) return;
 
@@ -28,7 +28,9 @@ export class VerifySelectHandler extends InteractionHandler {
     if (!product) return interaction.reply(prodNotFound);
 
     if (hasVerifiedRole(member, product))
-      return reply(ephemeral(`${emoji.question} You are already verified.`));
+      return interaction.reply(
+        ephemeral(`${emoji.question} You are already verified.`),
+      );
 
     await interaction.showModal(buildModel(product));
   }

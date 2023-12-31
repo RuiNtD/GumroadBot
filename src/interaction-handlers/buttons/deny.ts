@@ -8,8 +8,8 @@ import {
   PermissionFlagsBits,
   PermissionsBitField,
 } from "discord.js";
-import { ephemeral, getProduct, hasVerifiedRole } from "../lib/utils.js";
-import * as emoji from "../lib/emoji.js";
+import { ephemeral, getProduct, hasVerifiedRole } from "../../lib/utils.js";
+import * as emoji from "../../lib/emoji.js";
 
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button,
@@ -21,11 +21,11 @@ export class DenyBtnHandler extends InteractionHandler {
   }
 
   public async run(interaction: ButtonInteraction<"cached">) {
-    const { guild, message, reply } = interaction;
+    const { guild, message } = interaction;
 
     const perms = <PermissionsBitField>interaction.member.permissions;
     if (!perms.has(PermissionFlagsBits.Administrator))
-      return reply(
+      return interaction.reply(
         ephemeral(
           `${emoji.cross} You don't have permission to deny verifications.`,
         ),
@@ -45,14 +45,16 @@ export class DenyBtnHandler extends InteractionHandler {
     const member = await guild.members.fetch(userID);
     if (!member) {
       message.delete();
-      return reply(
+      return interaction.reply(
         ephemeral(`${emoji.question} User is no longer in the server.`),
       );
     }
 
     if (hasVerifiedRole(member, product)) {
       message.delete();
-      return reply(ephemeral(`${emoji.question} User is already verified.`));
+      return interaction.reply(
+        ephemeral(`${emoji.question} User is already verified.`),
+      );
     }
 
     message.delete();
@@ -64,9 +66,11 @@ export class DenyBtnHandler extends InteractionHandler {
         `${emoji.cross} Your license key has been denied in "${guildName}".\n` +
           "Please contact an admin for more info.",
       );
-      return reply(ephemeral(`${emoji.check} ${member} has been denied.`));
+      return interaction.reply(
+        ephemeral(`${emoji.check} ${member} has been denied.`),
+      );
     } catch (e) {
-      return reply(
+      return interaction.reply(
         ephemeral(
           `${emoji.check} ${member} has been denied, but I couldn't DM them the results.`,
         ),

@@ -13,10 +13,10 @@ import {
   getProduct,
   giveVerifiedRole,
   hasVerifiedRole,
-} from "../lib/utils.js";
-import { verify } from "../lib/api.js";
-import log, { createEmbed } from "../lib/log.js";
-import * as emoji from "../lib/emoji.js";
+} from "../../lib/utils.js";
+import { verify } from "../../lib/api.js";
+import log, { createEmbed } from "../../lib/log.js";
+import * as emoji from "../../lib/emoji.js";
 
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button,
@@ -28,11 +28,11 @@ export class ApproveBtnHandler extends InteractionHandler {
   }
 
   public async run(interaction: ButtonInteraction<"cached">) {
-    const { guild, message, reply } = interaction;
+    const { guild, message } = interaction;
 
     const perms = <PermissionsBitField>interaction.member.permissions;
     if (!perms.has(PermissionFlagsBits.Administrator))
-      return reply(
+      return interaction.reply(
         ephemeral(
           `${emoji.cross} You don't have permission to approve verifications.`,
         ),
@@ -52,20 +52,22 @@ export class ApproveBtnHandler extends InteractionHandler {
     const member = await guild.members.fetch(userID);
     if (!member) {
       message.delete();
-      return reply(
+      return interaction.reply(
         ephemeral(`${emoji.question} User is no longer in the server.`),
       );
     }
 
     if (hasVerifiedRole(member, product)) {
       message.delete();
-      return reply(ephemeral(`${emoji.question} User is already verified.`));
+      return interaction.reply(
+        ephemeral(`${emoji.question} User is already verified.`),
+      );
     }
 
     const data = await verify(product, licenseKey);
     if (!data.success) {
       message.delete();
-      return reply(
+      return interaction.reply(
         ephemeral(
           `${emoji.question} User's license key no longer works.\n` +
             data.message,
@@ -79,7 +81,7 @@ export class ApproveBtnHandler extends InteractionHandler {
       await giveVerifiedRole(member, product, "Approved by Admin");
     } catch (e) {
       console.log(e);
-      return reply(
+      return interaction.reply(
         `${interaction.user}:\n` +
           `${emoji.warning} ${member.user.tag}'s license key was approved, but something went wrong giving them the verified role!`,
       );
@@ -105,9 +107,11 @@ export class ApproveBtnHandler extends InteractionHandler {
         `${emoji.check} Your license key has been approved in "${guildName}".\n` +
           "You should now be verified.",
       );
-      return reply(ephemeral(`${emoji.check} ${member} has been approved.`));
+      return interaction.reply(
+        ephemeral(`${emoji.check} ${member} has been approved.`),
+      );
     } catch (e) {
-      return reply(
+      return interaction.reply(
         ephemeral(
           `${emoji.check} ${member} has been approved, but I couldn't DM them the results.`,
         ),

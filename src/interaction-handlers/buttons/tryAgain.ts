@@ -4,10 +4,10 @@ import {
   InteractionHandlerTypes,
 } from "@sapphire/framework";
 import { ButtonInteraction } from "discord.js";
-import { ephemeral, getProduct, hasVerifiedRole } from "../lib/utils.js";
-import * as emoji from "../lib/emoji.js";
-import buildModel from "../lib/model.js";
-import { prodNotFound } from "../lib/msgs.js";
+import { ephemeral, getProduct, hasVerifiedRole } from "../../lib/utils.js";
+import * as emoji from "../../lib/emoji.js";
+import buildModel from "../../lib/model.js";
+import { prodNotFound } from "../../lib/msgs.js";
 
 const prefix = "verify:";
 
@@ -25,12 +25,14 @@ export class TryAgainBtnHandler extends InteractionHandler {
     interaction: ButtonInteraction<"cached">,
     prodId: InteractionHandler.ParseResult<this>,
   ) {
-    const { guild, member, reply } = interaction;
+    const { guild, member } = interaction;
     const product = await getProduct(guild, prodId);
     if (!product) return interaction.reply(prodNotFound);
 
     if (hasVerifiedRole(member, product))
-      return reply(ephemeral(`${emoji.question} You are already verified.`));
+      return interaction.reply(
+        ephemeral(`${emoji.question} You are already verified.`),
+      );
 
     await interaction.showModal(buildModel(product));
   }

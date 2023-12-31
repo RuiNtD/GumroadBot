@@ -33,14 +33,14 @@ export class UserCommand extends Command {
           option
             .setName("product")
             .setDescription("Product ID")
-            .setRequired(true),
+            .setRequired(true)
+            .setAutocomplete(true),
         )
         .addStringOption((option) =>
           option
             .setName("key")
             .setDescription("License key")
-            .setRequired(false)
-            .setAutocomplete(true),
+            .setRequired(false),
         ),
     );
   }
@@ -85,7 +85,7 @@ export class UserCommand extends Command {
       );
     }
 
-    log(interaction.guild, {
+    log(guild, {
       embeds: [
         createEmbed({
           title: key ? "Verified by Admin" : "Manually Approved by Admin",
