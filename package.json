@@ -16,6 +16,7 @@
     "@sapphire/framework": "^5.0.5",
     "@sapphire/plugin-editable-commands": "^4.0.1",
     "@sapphire/plugin-subcommands": "^6.0.2",
+    "@sapphire/utilities": "^3.15.1",
     "axios": "^1.6.3",
     "config": "^3.3.9",
     "discord.js": "~14.14.1",
