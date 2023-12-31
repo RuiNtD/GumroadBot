@@ -52,7 +52,7 @@ export class VerifyModalHandler extends InteractionHandler {
         components: [
           new ActionRowBuilder<ButtonBuilder>().addComponents(
             new ButtonBuilder({
-              customId: `verify:${product}`,
+              customId: `verify:${product.value}`,
               label: "Try Again",
               style: ButtonStyle.Primary,
             }),

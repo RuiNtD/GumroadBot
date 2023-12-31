@@ -1,6 +1,6 @@
 import axios from "axios";
-import config from "config";
 import { z } from "zod";
+import * as config from "./db.js";
 import { Product } from "./db.js";
 
 const debug: boolean = config.get("debug");

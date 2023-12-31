@@ -5,9 +5,11 @@ import { openKv } from "@deno/kv";
 import { z } from "zod";
 
 export const kv = await openKv("kv.db");
-await kv.set(["guilds", get("guildID"), "products", "hybridv2"], <Product>{
+await kv.set(["guilds", get("guildID"), "products", get("productID")], <
+  Product
+>{
   label: "The Hybrid v2",
-  value: "HybridV2",
+  value: get("productID"),
   emoji: "🍆",
   role: get("verifiedRole"),
   accessToken: get("accessToken"),
