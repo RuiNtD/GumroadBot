@@ -1,6 +1,7 @@
 import axios from "axios";
 import config from "config";
 import { z } from "zod";
+import { Product } from "./config.js";
 
 const debug: boolean = config.get("debug");
 
@@ -20,7 +21,6 @@ const api = axios.create({
   baseURL: "https://api.gumroad.com/v2",
   validateStatus: (status) => status < 500,
 });
-const product_permalink: string = config.get("permalink");
 const access_token: string = config.get("accessToken");
 const increment_uses_count: boolean = config.get("incrementUses");
 
@@ -39,6 +39,7 @@ function debugKey(
 }
 
 export async function verify(
+  product: Product,
   key: string,
   use?: boolean,
 ): Promise<LicenseResponse> {
@@ -47,7 +48,7 @@ export async function verify(
     debugKey(key, use) ||
       (
         await api.post("licenses/verify", {
-          product_permalink,
+          product_permalink: product.value,
           license_key: key,
           increment_uses_count: `${use}`,
         })
@@ -55,39 +56,48 @@ export async function verify(
   );
 }
 
-export async function enable(key: string): Promise<LicenseResponse> {
+export async function enable(
+  product: Product,
+  key: string,
+): Promise<LicenseResponse> {
   return LicenseResponse.parse(
     debugKey(key) ||
       (
         await api.put("licenses/enable", {
           access_token,
-          product_permalink,
+          product_permalink: product.value,
           license_key: key,
         })
       ).data,
   );
 }
 
-export async function disable(key: string): Promise<LicenseResponse> {
+export async function disable(
+  product: Product,
+  key: string,
+): Promise<LicenseResponse> {
   return LicenseResponse.parse(
     debugKey(key) ||
       (
         await api.put("licenses/disable", {
           access_token,
-          product_permalink,
+          product_permalink: product.value,
           license_key: key,
         })
       ).data,
   );
 }
 
-export async function decUses(key: string): Promise<LicenseResponse> {
+export async function decUses(
+  product: Product,
+  key: string,
+): Promise<LicenseResponse> {
   return LicenseResponse.parse(
     debugKey(key) ||
       (
         await api.put("licenses/decrement_uses_count", {
           access_token,
-          product_permalink,
+          product_permalink: product.value,
           license_key: key,
         })
       ).data,

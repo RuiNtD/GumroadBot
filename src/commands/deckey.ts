@@ -3,9 +3,11 @@ import { Command, CommandOptionsRunTypeEnum } from "@sapphire/framework";
 import { ChatInputCommandInteraction, PermissionsBitField } from "discord.js";
 import { decUses } from "../lib/api.js";
 import * as emoji from "../lib/emoji.js";
+import { ephemeral, getProduct } from "../lib/utils.js";
+import { prodNotFound } from "../lib/msgs.js";
 
 @ApplyOptions<Command.Options>({
-  description: "Decrement the use count on a Hybrid V2 license",
+  description: "Decrement the use count on a license",
   runIn: CommandOptionsRunTypeEnum.GuildAny,
 })
 export class UserCommand extends Command {
@@ -17,27 +19,34 @@ export class UserCommand extends Command {
         .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
         .addStringOption((option) =>
           option
-            .setName("key")
-            .setDescription("Hybrid V2 license key")
+            .setName("product")
+            .setDescription("Product ID")
             .setRequired(true),
+        )
+        .addStringOption((option) =>
+          option.setName("key").setDescription("License key").setRequired(true),
         ),
     );
   }
 
-  public override async chatInputRun(interaction: ChatInputCommandInteraction) {
-    const key = interaction.options.getString("key", true);
-    const data = await decUses(key);
+  public override async chatInputRun(
+    interaction: ChatInputCommandInteraction<"cached">,
+  ) {
+    const { guild, options } = interaction;
+    const product = await getProduct(guild, options.getString("product", true));
+    const key = options.getString("key", true);
+    if (!product) return interaction.reply(prodNotFound);
+
+    const data = await decUses(product, key);
 
     if (!data.success) {
-      return interaction.reply({
-        content: `${emoji.cross} ${data.message}`,
-        ephemeral: true,
-      });
+      return interaction.reply(ephemeral(`${emoji.cross} ${data.message}`));
     }
 
-    return interaction.reply({
-      content: `${emoji.check} This license now has a use count of ${data.uses}.`,
-      ephemeral: true,
-    });
+    return interaction.reply(
+      ephemeral(
+        `${emoji.check} This license now has a use count of ${data.uses}.`,
+      ),
+    );
   }
 }

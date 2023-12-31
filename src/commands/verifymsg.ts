@@ -8,6 +8,7 @@ import {
   ChatInputCommandInteraction,
   PermissionsBitField,
 } from "discord.js";
+import * as emoji from "../lib/emoji.js";
 
 @ApplyOptions<Command.Options>({
   description: "Sends the bot's verification prompt in this channel",
@@ -36,15 +37,15 @@ export class UserCommand extends Command {
         new ButtonBuilder({
           customId: "help",
           label: "Help",
-          style: ButtonStyle.Primary,
+          style: ButtonStyle.Secondary,
         }),
       ],
     });
 
-    const devPing = config.getDevPing(interaction.client),
+    const devPing = await config.getDevPing(interaction.guild),
       adminPing = config.getAdminPing(interaction.guild),
       content =
-        "To receive support for your purchase, you will need to verify your license key.\n" +
+        "To receive support for your purchase, you will need to verify your license key. " +
         "Click the button below to verify your license key.\n" +
         "\n" +
         `For bot support, contact ${devPing}\n` +
@@ -54,6 +55,6 @@ export class UserCommand extends Command {
       components: [row],
     });
 
-    return interaction.reply({ content: "Done.", ephemeral: true });
+    return interaction.reply({ content: emoji.check, ephemeral: true });
   }
 }

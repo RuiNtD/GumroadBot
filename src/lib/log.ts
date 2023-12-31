@@ -8,6 +8,7 @@ import {
 } from "discord.js";
 import config from "config";
 import { formatUser } from "./utils.js";
+import { Product } from "./config.js";
 
 export default function log(
   guild: Guild,
@@ -31,12 +32,13 @@ export type EmbedData = Partial<{
   title: string;
   user: User;
   uses: number;
+  product: Product;
   key: string;
   staff: User;
 }>;
 
 export function createEmbed(data: EmbedData): EmbedBuilder {
-  const { title, user, uses, key, staff } = data;
+  const { title, user, uses, product, key, staff } = data;
   const embed = new EmbedBuilder({ title }).setTimestamp();
 
   if (user) {
@@ -47,9 +49,16 @@ export function createEmbed(data: EmbedData): EmbedBuilder {
     ]);
   }
 
+  if (product)
+    embed.addFields([
+      {
+        name: "Product",
+        value: `[${product}](https://gumroad.com/l/${product})`,
+        inline: true,
+      },
+    ]);
+  if (key) embed.addFields([{ name: "License Key", value: key, inline: true }]);
   if (uses) embed.addFields([{ name: "Uses", value: `${uses}`, inline: true }]);
-
-  if (key) embed.addFields([{ name: "License Key", value: key }]);
 
   if (staff)
     embed.setFooter({

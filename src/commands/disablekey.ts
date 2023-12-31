@@ -1,17 +1,14 @@
 import { ApplyOptions } from "@sapphire/decorators";
 import { Command, CommandOptionsRunTypeEnum } from "@sapphire/framework";
-import {
-  ChatInputCommandInteraction,
-  EmbedBuilder,
-  PermissionsBitField,
-} from "discord.js";
+import { ChatInputCommandInteraction, PermissionsBitField } from "discord.js";
 import { disable } from "../lib/api.js";
-import log from "../lib/log.js";
-import { formatUser } from "../lib/utils.js";
+import log, { createEmbed } from "../lib/log.js";
+import { ephemeral, getProduct } from "../lib/utils.js";
 import * as emoji from "../lib/emoji.js";
+import { prodNotFound } from "../lib/msgs.js";
 
 @ApplyOptions<Command.Options>({
-  description: "Disable a Hybrid V2 license",
+  description: "Disable a license",
   runIn: CommandOptionsRunTypeEnum.GuildAny,
 })
 export class UserCommand extends Command {
@@ -23,46 +20,42 @@ export class UserCommand extends Command {
         .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
         .addStringOption((option) =>
           option
-            .setName("key")
-            .setDescription("Hybrid V2 license key")
+            .setName("product")
+            .setDescription("Product ID")
             .setRequired(true),
+        )
+        .addStringOption((option) =>
+          option.setName("key").setDescription("License key").setRequired(true),
         ),
     );
   }
 
-  public override async chatInputRun(interaction: ChatInputCommandInteraction) {
-    if (!interaction.inCachedGuild()) return;
+  public override async chatInputRun(
+    interaction: ChatInputCommandInteraction<"cached">,
+  ) {
+    const { guild, options } = interaction;
+    const product = await getProduct(guild, options.getString("product", true));
+    const key = options.getString("key", true);
+    if (!product) return interaction.reply(prodNotFound);
 
-    const key = interaction.options.getString("key", true);
-    const data = await disable(key);
-
+    const data = await disable(product, key);
     if (!data.success) {
-      return interaction.reply({
-        content: `${emoji.cross} ${data.message}`,
-        ephemeral: true,
-      });
+      return interaction.reply(ephemeral(`${emoji.cross} ${data.message}`));
     }
 
-    log(interaction.guild, {
+    log(guild, {
       embeds: [
-        new EmbedBuilder()
-          .setColor("Red")
-          .setTitle("License Disabled")
-          .addFields([
-            { name: "License Key", value: key, inline: true },
-            { name: "Uses", value: `${data.uses}`, inline: true },
-          ])
-          .setFooter({
-            text: formatUser(interaction.user),
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setTimestamp(),
+        createEmbed({
+          title: "License Disabled",
+          key,
+          uses: data.uses,
+          staff: interaction.user,
+        }).setColor("Red"),
       ],
     });
 
-    return interaction.reply({
-      content: `${emoji.check} This license is now disabled.`,
-      ephemeral: true,
-    });
+    return interaction.reply(
+      ephemeral(`${emoji.check} This license is now disabled.`),
+    );
   }
 }

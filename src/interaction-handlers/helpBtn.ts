@@ -16,8 +16,7 @@ const reply = {
 
   content:
     "You can find your license key on your Gumroad receipt or downloads page.\n" +
-    "You can also use the buttons below to find your license key.\n" +
-    "Once you have your license key, click `Verify` below to continue.",
+    "You can also use the buttons below to find your license key.",
 
   embeds: [
     new EmbedBuilder({
@@ -30,16 +29,6 @@ const reply = {
   ],
 
   components: [
-    new ActionRowBuilder<ButtonBuilder>({
-      components: [
-        new ButtonBuilder({
-          style: ButtonStyle.Primary,
-          label: "Verify",
-          customId: "verify",
-        }),
-      ],
-    }),
-
     new ActionRowBuilder<ButtonBuilder>({
       components: [
         new ButtonBuilder({

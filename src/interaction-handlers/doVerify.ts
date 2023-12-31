@@ -13,41 +13,49 @@ import {
 } from "discord.js";
 import { verify } from "../lib/api.js";
 import log, { createEmbed } from "../lib/log.js";
-import { giveVerifiedRole, hasVerifiedRole } from "../lib/utils.js";
+import {
+  ephemeral,
+  getProduct,
+  giveVerifiedRole,
+  hasVerifiedRole,
+} from "../lib/utils.js";
 import { getAdminPing } from "../lib/config.js";
 import * as emoji from "../lib/emoji.js";
+
+const prefix = "verify:";
 
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.ModalSubmit,
 })
 export class VerifyModalHandler extends InteractionHandler {
   public override parse(interaction: ModalSubmitInteraction) {
-    if (interaction.customId !== "verify") return this.none();
-
-    return this.some(interaction.fields.getTextInputValue("licenseKey"));
+    const { customId } = interaction;
+    if (!customId.startsWith(prefix)) return this.none();
+    return this.some(customId.substring(prefix.length));
   }
 
   @RequiresClientPermissions(PermissionsBitField.Flags.ManageRoles)
   public async run(
     interaction: ModalSubmitInteraction<"cached">,
-    key: InteractionHandler.ParseResult<this>,
+    prodId: InteractionHandler.ParseResult<this>,
   ) {
-    if (hasVerifiedRole(interaction.member))
-      return interaction.reply({
-        content: "You are already verified.",
-        ephemeral: true,
-      });
+    const { fields, guild, member, user, reply } = interaction;
+    const product = await getProduct(guild, prodId);
+    if (!product) return;
 
-    const data = await verify(key, false);
+    if (hasVerifiedRole(member, product))
+      return reply(ephemeral(`${emoji.question} You are already verified.`));
+
+    const key = fields.getTextInputValue("licenseKey");
+    const data = await verify(product, key, false);
     if (!data.success) {
-      console.log(data);
-      return interaction.reply({
+      return reply({
         content: `${emoji.cross} ${data.message}`,
         ephemeral: true,
         components: [
           new ActionRowBuilder<ButtonBuilder>().addComponents(
             new ButtonBuilder({
-              customId: "verify",
+              customId: `verify:${product}`,
               label: "Try Again",
               style: ButtonStyle.Primary,
             }),
@@ -62,13 +70,13 @@ export class VerifyModalHandler extends InteractionHandler {
     }
 
     if (data.uses < 1) {
-      await verify(key);
+      await verify(product, key);
       try {
-        await giveVerifiedRole(interaction.member, "Verified License");
+        await giveVerifiedRole(member, product, "Verified License");
       } catch (e) {
         console.log(e);
-        return interaction.reply(
-          `${interaction.user}:\n` +
+        return reply(
+          `${user}:\n` +
             `${emoji.warning} Your license key was verified, but something went wrong giving you the verified role.`,
         );
       }
@@ -77,21 +85,22 @@ export class VerifyModalHandler extends InteractionHandler {
         embeds: [
           createEmbed({
             title: "Verified",
-            user: interaction.user,
+            user,
             uses: data.uses,
+            product,
             key,
           }),
         ],
       };
-      log(interaction.guild, logMsg);
+      log(guild, logMsg);
 
       const usesPlural = data.uses == 1 ? "time" : "times";
-      return interaction.reply({
-        content:
+      return reply(
+        ephemeral(
           `${emoji.check} You should now be verified.\n` +
-          `This license has now been used ${data.uses} ${usesPlural}.`,
-        ephemeral: true,
-      });
+            `This license has now been used ${data.uses} ${usesPlural}.`,
+        ),
+      );
     } else {
       const row = new ActionRowBuilder<ButtonBuilder>({
         components: [
@@ -107,14 +116,15 @@ export class VerifyModalHandler extends InteractionHandler {
           }),
         ],
       });
-      const admin = getAdminPing(interaction.guild);
+      const admin = getAdminPing(guild);
 
       const logMsg: MessageCreateOptions = {
         content: `${admin}: User requires manual approval.`,
         embeds: [
           createEmbed({
-            user: interaction.user,
+            user: user,
             uses: data.uses,
+            product,
             key,
           }).setDescription(
             "Clicking a button below will DM the user with the results.\n" +
@@ -123,14 +133,14 @@ export class VerifyModalHandler extends InteractionHandler {
         ],
         components: [row],
       };
-      log(interaction.guild, logMsg);
+      log(guild, logMsg);
 
-      return interaction.reply({
-        content:
+      return reply(
+        ephemeral(
           `${emoji.check} Your license key has been verified.\n` +
-          `Please wait for an admin to manually approve you.`,
-        ephemeral: true,
-      });
+            `Please wait for an admin to manually approve you.`,
+        ),
+      );
     }
   }
 }

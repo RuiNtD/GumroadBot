@@ -3,8 +3,14 @@ import { Command, CommandOptionsRunTypeEnum } from "@sapphire/framework";
 import { ChatInputCommandInteraction, PermissionsBitField } from "discord.js";
 import { LicenseResponse, verify } from "../lib/api.js";
 import log, { createEmbed } from "../lib/log.js";
-import { giveVerifiedRole, hasVerifiedRole } from "../lib/utils.js";
+import {
+  ephemeral,
+  getProduct,
+  giveVerifiedRole,
+  hasVerifiedRole,
+} from "../lib/utils.js";
 import * as emoji from "../lib/emoji.js";
+import { prodNotFound } from "../lib/msgs.js";
 
 @ApplyOptions<Command.Options>({
   description: "Manually approve a user",
@@ -18,16 +24,20 @@ export class UserCommand extends Command {
         .setDescription(this.description)
         .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
         .addUserOption((option) =>
+          option.setName("user").setDescription("User to approve"),
+        )
+        .addStringOption((option) =>
           option
-            .setName("user")
-            .setDescription("User to approve")
+            .setName("product")
+            .setDescription("Product ID")
             .setRequired(true),
         )
         .addStringOption((option) =>
           option
             .setName("key")
-            .setDescription("Hybrid V2 license key")
-            .setRequired(false),
+            .setDescription("License key")
+            .setRequired(false)
+            .setAutocomplete(true),
         ),
     );
   }
@@ -35,35 +45,40 @@ export class UserCommand extends Command {
   public override async chatInputRun(
     interaction: ChatInputCommandInteraction<"cached">,
   ) {
-    const user = interaction.options.getUser("user", true);
-    const key = interaction.options.getString("key", false);
-    const member = interaction.options.getMember("user");
-    if (!member) return;
+    const { guild, options } = interaction;
 
-    if (hasVerifiedRole(member)) {
-      return interaction.reply({
-        content: `${emoji.question} This user is already verified.`,
-        ephemeral: true,
-      });
+    const user = options.getUser("user", true);
+    const key = options.getString("key", false);
+    const product = await getProduct(guild, options.getString("product", true));
+    const member = options.getMember("user");
+    if (!member) return;
+    if (!product) return interaction.reply(prodNotFound);
+
+    if (hasVerifiedRole(member, product)) {
+      return interaction.reply(
+        ephemeral(`${emoji.question} This user is already verified.`),
+      );
     }
 
     let data: LicenseResponse | undefined;
-    if (key) data = await verify(key);
+    if (key) data = await verify(product, key);
     if (data && !data.success) {
       console.log(data);
-      return interaction.reply({
-        content: `${emoji.cross} ${data.message}`,
-        ephemeral: true,
-      });
+      return interaction.reply(ephemeral(`${emoji.cross} ${data.message}`));
     }
 
     try {
-      await giveVerifiedRole(member, "Verified License");
+      await giveVerifiedRole(
+        member,
+        product,
+        key ? "Verified License" : "Approved by Admin",
+      );
     } catch (e) {
       console.log(e);
       return interaction.reply(
-        `${interaction.user}:\n` +
-          `${emoji.warning} ${user.tag}'s license key was verified, but something went wrong giving them the verified role.`,
+        ephemeral(
+          `${emoji.warning} ${user}'s license key was verified, but something went wrong giving them the verified role.`,
+        ),
       );
     }
 
@@ -73,15 +88,15 @@ export class UserCommand extends Command {
           title: key ? "Verified by Admin" : "Manually Approved by Admin",
           user,
           uses: data?.uses,
+          product: product || undefined,
           key: key || undefined,
           staff: interaction.user,
         }),
       ],
     });
 
-    return interaction.reply({
-      content: `${emoji.check} ${user.tag} should now be verified.`,
-      ephemeral: true,
-    });
+    return interaction.reply(
+      ephemeral(`${emoji.check} ${user} should now be verified.`),
+    );
   }
 }

@@ -8,7 +8,7 @@ import {
   PermissionFlagsBits,
   PermissionsBitField,
 } from "discord.js";
-import { hasVerifiedRole } from "../lib/utils.js";
+import { ephemeral, getProduct, hasVerifiedRole } from "../lib/utils.js";
 import * as emoji from "../lib/emoji.js";
 
 @ApplyOptions<InteractionHandler.Options>({
@@ -21,57 +21,56 @@ export class DenyBtnHandler extends InteractionHandler {
   }
 
   public async run(interaction: ButtonInteraction<"cached">) {
-    if (!interaction.member) return;
-    if (!interaction.inCachedGuild()) return;
+    const { guild, message, reply } = interaction;
 
     const perms = <PermissionsBitField>interaction.member.permissions;
     if (!perms.has(PermissionFlagsBits.Administrator))
-      return interaction.reply({
-        content: `${emoji.cross} You don't have permission to deny verifications.`,
-        ephemeral: true,
-      });
+      return reply(
+        ephemeral(
+          `${emoji.cross} You don't have permission to deny verifications.`,
+        ),
+      );
 
-    const fields = interaction.message.embeds.at(0)?.fields;
+    const fields = message.embeds.at(0)?.fields;
     if (!fields) return;
     const userID = fields.find((v) => v.name == "User ID")?.value;
     const licenseKey = fields.find((v) => v.name == "License Key")?.value;
-    if (!userID || !licenseKey) return;
+    const prodMatch = fields
+      .find((v) => v.name == "Product")
+      ?.value.match(/^\[(.*)\]/);
+    if (!userID || !licenseKey || !prodMatch) return;
+    const product = await getProduct(guild, prodMatch[1]);
+    if (!product) return;
 
-    const member = await interaction.guild?.members.fetch(userID);
+    const member = await guild.members.fetch(userID);
     if (!member) {
-      interaction.message.delete();
-      return interaction.reply({
-        content: `${emoji.question} User is no longer in the server.`,
-        ephemeral: true,
-      });
+      message.delete();
+      return reply(
+        ephemeral(`${emoji.question} User is no longer in the server.`),
+      );
     }
 
-    if (hasVerifiedRole(member)) {
-      interaction.message.delete();
-      return interaction.reply({
-        content: `${emoji.question} User is already verified.`,
-        ephemeral: true,
-      });
+    if (hasVerifiedRole(member, product)) {
+      message.delete();
+      return reply(ephemeral(`${emoji.question} User is already verified.`));
     }
 
-    interaction.message.delete();
+    message.delete();
 
     try {
       const dm = await member.createDM();
-      const guildName = interaction.guild.name;
+      const guildName = guild.name;
       await dm.send(
         `${emoji.cross} Your license key has been denied in "${guildName}".\n` +
           "Please contact an admin for more info.",
       );
-      return interaction.reply({
-        content: `${emoji.check} ${member} has been denied.`,
-        ephemeral: true,
-      });
+      return reply(ephemeral(`${emoji.check} ${member} has been denied.`));
     } catch (e) {
-      return interaction.reply({
-        content: `${emoji.check} ${member} has been denied, but I couldn't DM them the results.`,
-        ephemeral: true,
-      });
+      return reply(
+        ephemeral(
+          `${emoji.check} ${member} has been denied, but I couldn't DM them the results.`,
+        ),
+      );
     }
   }
 }
