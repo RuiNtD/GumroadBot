@@ -1,7 +1,7 @@
 import { ApplyOptions } from "@sapphire/decorators";
 import { CommandOptionsRunTypeEnum } from "@sapphire/framework";
 import { Subcommand } from "@sapphire/plugin-subcommands";
-import { ChannelType } from "discord.js";
+import { ChannelType, PermissionsBitField } from "discord.js";
 import { ephemeral } from "../lib/utils.js";
 
 @ApplyOptions<Subcommand.Options>({
@@ -27,7 +27,8 @@ export class ConfigCommand extends Subcommand {
     registry.registerChatInputCommand((builder) =>
       builder
         .setName(this.name)
-        .setDescription(this.description) // Needed even though base command isn't displayed to end user
+        .setDescription(this.description)
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
         .addSubcommand((command) =>
           command
             .setName("add-product")
