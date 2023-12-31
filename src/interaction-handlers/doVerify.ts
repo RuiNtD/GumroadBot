@@ -13,13 +13,8 @@ import {
 } from "discord.js";
 import { verify } from "../lib/api.js";
 import log, { createEmbed } from "../lib/log.js";
-import {
-  ephemeral,
-  getProduct,
-  giveVerifiedRole,
-  hasVerifiedRole,
-} from "../lib/utils.js";
-import { getAdminPing } from "../lib/config.js";
+import { ephemeral, giveVerifiedRole, hasVerifiedRole } from "../lib/utils.js";
+import * as db from "../lib/db.js";
 import * as emoji from "../lib/emoji.js";
 
 const prefix = "verify:";
@@ -40,7 +35,7 @@ export class VerifyModalHandler extends InteractionHandler {
     prodId: InteractionHandler.ParseResult<this>,
   ) {
     const { fields, guild, member, user } = interaction;
-    const product = await getProduct(guild, prodId);
+    const product = await db.getProduct(guild, prodId);
     if (!product) return;
 
     if (hasVerifiedRole(member, product))
@@ -118,7 +113,7 @@ export class VerifyModalHandler extends InteractionHandler {
           }),
         ],
       });
-      const admin = getAdminPing(guild);
+      const admin = db.getAdminPing(guild);
 
       const logMsg: MessageCreateOptions = {
         content: `${admin}: User requires manual approval.`,

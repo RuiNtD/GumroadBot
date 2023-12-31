@@ -4,7 +4,7 @@ import {
   TextInputBuilder,
   TextInputStyle,
 } from "discord.js";
-import { Product, debug } from "./config.js";
+import { Product, debug } from "./db.js";
 
 export default function buildModel(product: Product) {
   const keyInput = new TextInputBuilder({

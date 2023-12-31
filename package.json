@@ -10,6 +10,7 @@
     "start:dev": "pnpm build && pnpm start"
   },
   "dependencies": {
+    "@deno/kv": "^0.7.0",
     "@sapphire/decorators": "^6.0.3",
     "@sapphire/fetch": "^3.0.1",
     "@sapphire/framework": "^5.0.5",

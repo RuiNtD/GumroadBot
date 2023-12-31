@@ -3,9 +3,10 @@ import { Command, CommandOptionsRunTypeEnum } from "@sapphire/framework";
 import { ChatInputCommandInteraction, PermissionsBitField } from "discord.js";
 import { disable } from "../lib/api.js";
 import log, { createEmbed } from "../lib/log.js";
-import { ephemeral, getProduct } from "../lib/utils.js";
+import { ephemeral } from "../lib/utils.js";
 import * as emoji from "../lib/emoji.js";
 import { prodNotFound } from "../lib/msgs.js";
+import * as db from "../lib/db.js";
 
 @ApplyOptions<Command.Options>({
   description: "Disable a license",
@@ -35,7 +36,10 @@ export class UserCommand extends Command {
     interaction: ChatInputCommandInteraction<"cached">,
   ) {
     const { guild, options } = interaction;
-    const product = await getProduct(guild, options.getString("product", true));
+    const product = await db.getProduct(
+      guild,
+      options.getString("product", true),
+    );
     const key = options.getString("key", true);
     if (!product) return interaction.reply(prodNotFound);
 

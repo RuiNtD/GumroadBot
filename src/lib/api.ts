@@ -1,7 +1,7 @@
 import axios from "axios";
 import config from "config";
 import { z } from "zod";
-import { Product } from "./config.js";
+import { Product } from "./db.js";
 
 const debug: boolean = config.get("debug");
 
@@ -21,7 +21,6 @@ const api = axios.create({
   baseURL: "https://api.gumroad.com/v2",
   validateStatus: (status) => status < 500,
 });
-const access_token: string = config.get("accessToken");
 const increment_uses_count: boolean = config.get("incrementUses");
 
 function debugKey(
@@ -64,7 +63,7 @@ export async function enable(
     debugKey(key) ||
       (
         await api.put("licenses/enable", {
-          access_token,
+          access_token: product.accessToken,
           product_permalink: product.value,
           license_key: key,
         })
@@ -80,7 +79,7 @@ export async function disable(
     debugKey(key) ||
       (
         await api.put("licenses/disable", {
-          access_token,
+          access_token: product.accessToken,
           product_permalink: product.value,
           license_key: key,
         })
@@ -96,7 +95,7 @@ export async function decUses(
     debugKey(key) ||
       (
         await api.put("licenses/decrement_uses_count", {
-          access_token,
+          access_token: product.accessToken,
           product_permalink: product.value,
           license_key: key,
         })

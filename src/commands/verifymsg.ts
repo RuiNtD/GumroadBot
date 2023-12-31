@@ -1,6 +1,6 @@
 import { ApplyOptions } from "@sapphire/decorators";
 import { Command, CommandOptionsRunTypeEnum } from "@sapphire/framework";
-import * as config from "../lib/config.js";
+import * as db from "../lib/db.js";
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -9,7 +9,7 @@ import {
   PermissionsBitField,
 } from "discord.js";
 import * as emoji from "../lib/emoji.js";
-import { ephemeral, getProduct } from "../lib/utils.js";
+import { ephemeral } from "../lib/utils.js";
 
 @ApplyOptions<Command.Options>({
   description: "Sends the bot's verification prompt in this channel",
@@ -36,7 +36,7 @@ export class UserCommand extends Command {
     interaction: ChatInputCommandInteraction<"cached">,
   ) {
     const { guild, options } = interaction;
-    const product = await getProduct(
+    const product = await db.getProduct(
       guild,
       options.getString("product", false) || "",
     );
@@ -58,8 +58,8 @@ export class UserCommand extends Command {
       ],
     });
 
-    const devPing = await config.getDevPing(interaction.guild),
-      adminPing = config.getAdminPing(interaction.guild),
+    const devPing = await db.getDevPing(interaction.guild),
+      adminPing = db.getAdminPing(interaction.guild),
       content =
         "To receive support for your purchase, you will need to verify your license key. " +
         "Click the button below to verify your license key.\n" +

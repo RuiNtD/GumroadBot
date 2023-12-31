@@ -2,30 +2,26 @@ import {
   EmbedBuilder,
   type MessageCreateOptions,
   type MessagePayload,
-  type TextChannel,
   User,
   Guild,
+  hyperlink,
 } from "discord.js";
-import config from "config";
+import * as db from "./db.js";
 import { formatUser } from "./utils.js";
-import { Product } from "./config.js";
+import { Product } from "./db.js";
 
-export default function log(
+export default async function log(
   guild: Guild,
   msg: string | MessagePayload | MessageCreateOptions,
 ) {
-  const channel = guild.channels.resolve(config.get("loggingChannel"));
+  const channel = await db.getLoggingChannel(guild);
   if (!channel) {
-    console.warn("Logging channel not found!");
-    return;
+    throw "Logging channel not found!";
   } else if (!channel.isTextBased()) {
-    console.warn("Logging channel is not a text channel!");
-    return;
-  } else {
-    console.log("Logging channel", (<TextChannel>channel).name);
+    throw "Logging channel is not a text channel!";
   }
 
-  channel.send(msg);
+  await channel.send(msg);
 }
 
 export type EmbedData = Partial<{
@@ -49,14 +45,18 @@ export function createEmbed(data: EmbedData): EmbedBuilder {
     ]);
   }
 
-  if (product)
+  if (product) {
+    const id = product.value;
     embed.addFields([
       {
         name: "Product",
-        value: `[${product}](https://gumroad.com/l/${product})`,
+        value: hyperlink(id, `https://gumroad.com/l/${id}`, product.label),
+        //value: `[${id}](https://gumroad.com/l/${id})`,
         inline: true,
       },
     ]);
+  }
+
   if (key) embed.addFields([{ name: "License Key", value: key, inline: true }]);
   if (uses) embed.addFields([{ name: "Uses", value: `${uses}`, inline: true }]);
 

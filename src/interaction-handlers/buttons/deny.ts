@@ -8,8 +8,9 @@ import {
   PermissionFlagsBits,
   PermissionsBitField,
 } from "discord.js";
-import { ephemeral, getProduct, hasVerifiedRole } from "../../lib/utils.js";
+import { ephemeral, hasVerifiedRole } from "../../lib/utils.js";
 import * as emoji from "../../lib/emoji.js";
+import * as db from "../../lib/db.js";
 
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button,
@@ -39,7 +40,7 @@ export class DenyBtnHandler extends InteractionHandler {
       .find((v) => v.name == "Product")
       ?.value.match(/^\[(.*)\]/);
     if (!userID || !licenseKey || !prodMatch) return;
-    const product = await getProduct(guild, prodMatch[1]);
+    const product = await db.getProduct(guild, prodMatch[1]);
     if (!product) return;
 
     const member = await guild.members.fetch(userID);

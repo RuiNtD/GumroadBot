@@ -3,8 +3,9 @@ import { Command, CommandOptionsRunTypeEnum } from "@sapphire/framework";
 import { ChatInputCommandInteraction, PermissionsBitField } from "discord.js";
 import { decUses } from "../lib/api.js";
 import * as emoji from "../lib/emoji.js";
-import { ephemeral, getProduct } from "../lib/utils.js";
+import { ephemeral } from "../lib/utils.js";
 import { prodNotFound } from "../lib/msgs.js";
+import * as db from "../lib/db.js";
 
 @ApplyOptions<Command.Options>({
   description: "Decrement the use count on a license",
@@ -34,7 +35,10 @@ export class UserCommand extends Command {
     interaction: ChatInputCommandInteraction<"cached">,
   ) {
     const { guild, options } = interaction;
-    const product = await getProduct(guild, options.getString("product", true));
+    const product = await db.getProduct(
+      guild,
+      options.getString("product", true),
+    );
     const key = options.getString("key", true);
     if (!product) return interaction.reply(prodNotFound);
 

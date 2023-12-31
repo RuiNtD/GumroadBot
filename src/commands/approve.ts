@@ -3,14 +3,10 @@ import { Command, CommandOptionsRunTypeEnum } from "@sapphire/framework";
 import { ChatInputCommandInteraction, PermissionsBitField } from "discord.js";
 import { LicenseResponse, verify } from "../lib/api.js";
 import log, { createEmbed } from "../lib/log.js";
-import {
-  ephemeral,
-  getProduct,
-  giveVerifiedRole,
-  hasVerifiedRole,
-} from "../lib/utils.js";
+import { ephemeral, giveVerifiedRole, hasVerifiedRole } from "../lib/utils.js";
 import * as emoji from "../lib/emoji.js";
 import { prodNotFound } from "../lib/msgs.js";
+import * as db from "../lib/db.js";
 
 @ApplyOptions<Command.Options>({
   description: "Manually approve a user",
@@ -52,7 +48,10 @@ export class UserCommand extends Command {
 
     const user = options.getUser("user", true);
     const key = options.getString("key", false);
-    const product = await getProduct(guild, options.getString("product", true));
+    const product = await db.getProduct(
+      guild,
+      options.getString("product", true),
+    );
     const member = options.getMember("user");
     if (!member) return;
     if (!product) return interaction.reply(prodNotFound);

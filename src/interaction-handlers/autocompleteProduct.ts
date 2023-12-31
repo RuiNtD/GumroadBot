@@ -4,7 +4,7 @@ import {
   InteractionHandlerTypes,
 } from "@sapphire/framework";
 import type { AutocompleteInteraction } from "discord.js";
-import { getProducts } from "../lib/config.js";
+import { getProducts } from "../lib/db.js";
 
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Autocomplete,

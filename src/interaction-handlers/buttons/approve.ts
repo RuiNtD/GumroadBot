@@ -10,13 +10,13 @@ import {
 } from "discord.js";
 import {
   ephemeral,
-  getProduct,
   giveVerifiedRole,
   hasVerifiedRole,
 } from "../../lib/utils.js";
 import { verify } from "../../lib/api.js";
 import log, { createEmbed } from "../../lib/log.js";
 import * as emoji from "../../lib/emoji.js";
+import * as db from "../../lib/db.js";
 
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button,
@@ -46,7 +46,7 @@ export class ApproveBtnHandler extends InteractionHandler {
       .find((v) => v.name == "Product")
       ?.value.match(/^\[(.*)\]/);
     if (!userID || !licenseKey || !prodMatch) return;
-    const product = await getProduct(guild, prodMatch[1]);
+    const product = await db.getProduct(guild, prodMatch[1]);
     if (!product) return;
 
     const member = await guild.members.fetch(userID);
