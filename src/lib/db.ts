@@ -92,8 +92,6 @@ export async function getProduct(
   id?: string,
 ): Promise<Product | undefined> {
   if (!id) return;
-  id = id.toLowerCase();
-
   const entry = await kv.get<Product>(["guilds", guild.id, "products", id]);
   return Product.parse(entry.value);
 }

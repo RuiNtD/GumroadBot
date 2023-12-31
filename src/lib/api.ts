@@ -47,7 +47,7 @@ export async function verify(
     debugKey(key, use) ||
       (
         await api.post("licenses/verify", {
-          product_permalink: product.value,
+          product_id: product.value,
           license_key: key,
           increment_uses_count: `${use}`,
         })
@@ -64,7 +64,7 @@ export async function enable(
       (
         await api.put("licenses/enable", {
           access_token: product.accessToken,
-          product_permalink: product.value,
+          product_id: product.value,
           license_key: key,
         })
       ).data,
@@ -80,7 +80,7 @@ export async function disable(
       (
         await api.put("licenses/disable", {
           access_token: product.accessToken,
-          product_permalink: product.value,
+          product_id: product.value,
           license_key: key,
         })
       ).data,
@@ -96,7 +96,7 @@ export async function decUses(
       (
         await api.put("licenses/decrement_uses_count", {
           access_token: product.accessToken,
-          product_permalink: product.value,
+          product_id: product.value,
           license_key: key,
         })
       ).data,

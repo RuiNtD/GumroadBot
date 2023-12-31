@@ -36,11 +36,9 @@ export class DenyBtnHandler extends InteractionHandler {
     if (!fields) return;
     const userID = fields.find((v) => v.name == "User ID")?.value;
     const licenseKey = fields.find((v) => v.name == "License Key")?.value;
-    const prodMatch = fields
-      .find((v) => v.name == "Product")
-      ?.value.match(/^\[(.*)\]/);
-    if (!userID || !licenseKey || !prodMatch) return;
-    const product = await db.getProduct(guild, prodMatch[1]);
+    const prodID = fields.find((v) => v.name == "Product ID")?.value;
+    if (!userID || !licenseKey || !prodID) return;
+    const product = await db.getProduct(guild, prodID);
     if (!product) return;
 
     const member = await guild.members.fetch(userID);

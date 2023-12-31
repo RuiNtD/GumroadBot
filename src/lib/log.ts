@@ -43,12 +43,15 @@ export function createEmbed(data: EmbedData): EmbedBuilder {
   }
 
   if (product) {
-    const id = product.value;
     embed.addFields([
       {
         name: "Product",
-        value: hyperlink(id, `https://gumroad.com/l/${id}`, product.label),
-        //value: `[${id}](https://gumroad.com/l/${id})`,
+        value: product.label,
+        inline: true,
+      },
+      {
+        name: "Product ID",
+        value: product.value,
         inline: true,
       },
     ]);
