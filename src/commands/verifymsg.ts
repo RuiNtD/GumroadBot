@@ -26,7 +26,6 @@ export class UserCommand extends Command {
           option
             .setName("product")
             .setDescription("Product ID")
-            .setRequired(false)
             .setAutocomplete(true),
         ),
     );

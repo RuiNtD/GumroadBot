@@ -33,10 +33,7 @@ export class UserCommand extends Command {
             .setAutocomplete(true),
         )
         .addStringOption((option) =>
-          option
-            .setName("key")
-            .setDescription("License key")
-            .setRequired(false),
+          option.setName("key").setDescription("License key"),
         ),
     );
   }
