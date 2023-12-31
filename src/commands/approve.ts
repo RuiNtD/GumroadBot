@@ -24,7 +24,10 @@ export class UserCommand extends Command {
         .setDescription(this.description)
         .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
         .addUserOption((option) =>
-          option.setName("user").setDescription("User to approve"),
+          option
+            .setName("user")
+            .setDescription("User to approve")
+            .setRequired(true),
         )
         .addStringOption((option) =>
           option
