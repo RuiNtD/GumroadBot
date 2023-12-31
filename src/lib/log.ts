@@ -15,12 +15,9 @@ export default async function log(
   msg: string | MessagePayload | MessageCreateOptions,
 ) {
   const channel = await db.getLoggingChannel(guild);
-  if (!channel) {
-    throw "Logging channel not found!";
-  } else if (!channel.isTextBased()) {
+  if (!channel) throw "Logging channel not found!";
+  else if (!channel.isTextBased())
     throw "Logging channel is not a text channel!";
-  }
-
   await channel.send(msg);
 }
 
