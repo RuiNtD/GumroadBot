@@ -11,9 +11,6 @@ dependencies:
   '@sapphire/decorators':
     specifier: ^6.0.3
     version: 6.0.3
-  '@sapphire/fetch':
-    specifier: ^3.0.1
-    version: 3.0.1
   '@sapphire/framework':
     specifier: ^5.0.5
     version: 5.0.5
@@ -337,11 +334,6 @@ packages:
   /@sapphire/duration@1.1.1:
     resolution: {integrity: sha512-c6+ZvVEmZ82+G5aZOz8QbTLNY1nN0j/fxykFNULnmoc2WspFO7PbXUDZMeHQoanWbFRC83U2DszhF2Zl5BwjrA==}
     engines: {node: '>=v14.0.0', npm: '>=7.0.0'}
-    dev: false
-
-  /@sapphire/fetch@3.0.1:
-    resolution: {integrity: sha512-BNnt4sA2yjQLKy6RBkkR93DCuUYP9wsC5FRdZoHxFPPB25K+C+Tf5pqige+vJHq54Qp8fZQWG2w9JZYOsGWYIg==}
-    engines: {node: '>=v18'}
     dev: false
 
   /@sapphire/framework@5.0.5:

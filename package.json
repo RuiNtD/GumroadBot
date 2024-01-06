@@ -12,7 +12,6 @@
   "dependencies": {
     "@deno/kv": "^0.7.0",
     "@sapphire/decorators": "^6.0.3",
-    "@sapphire/fetch": "^3.0.1",
     "@sapphire/framework": "^5.0.5",
     "@sapphire/plugin-editable-commands": "^4.0.1",
     "@sapphire/plugin-subcommands": "^6.0.2",
