@@ -7,6 +7,7 @@ import { ephemeral, giveVerifiedRole, hasVerifiedRole } from "../lib/utils.js";
 import * as emoji from "../lib/emoji.js";
 import { prodNotFound } from "../lib/msgs.js";
 import * as db from "../lib/db.js";
+import { resolveKey } from "@sapphire/plugin-i18next";
 
 @ApplyOptions<Command.Options>({
   description: "Manually approve a user",
@@ -53,11 +54,11 @@ export class ApproveCmd extends Command {
     if (!member) return;
     if (!product) return interaction.reply(prodNotFound);
 
-    if (hasVerifiedRole(member, product)) {
-      return interaction.reply(
-        ephemeral(`${emoji.question} This user is already verified.`),
-      );
-    }
+    if (hasVerifiedRole(member, product))
+      return interaction.reply({
+        content: await resolveKey(interaction, "cmd:alreadyVerified.other"),
+        ephemeral: true,
+      });
 
     let data: LicenseResponse | undefined;
     if (key) data = await verify(product, key);

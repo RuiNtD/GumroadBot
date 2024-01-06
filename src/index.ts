@@ -1,6 +1,7 @@
 import process from "node:process";
 import config from "config";
 import { SapphireClient } from "@sapphire/framework";
+import "@sapphire/plugin-i18next/register";
 
 const client = new SapphireClient({
   intents: ["Guilds", "GuildMembers"],

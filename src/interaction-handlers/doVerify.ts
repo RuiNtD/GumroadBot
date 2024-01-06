@@ -13,9 +13,10 @@ import {
 } from "discord.js";
 import { verify } from "../lib/api.js";
 import log, { createEmbed } from "../lib/log.js";
-import { ephemeral, giveVerifiedRole, hasVerifiedRole } from "../lib/utils.js";
+import { giveVerifiedRole, hasVerifiedRole } from "../lib/utils.js";
 import * as db from "../lib/db.js";
 import * as emoji from "../lib/emoji.js";
+import { resolveKey } from "@sapphire/plugin-i18next";
 
 const prefix = "verify:";
 
@@ -39,9 +40,10 @@ export class VerifyModalHandler extends InteractionHandler {
     if (!product) return;
 
     if (hasVerifiedRole(member, product))
-      return interaction.reply(
-        ephemeral(`${emoji.question} You are already verified.`),
-      );
+      return interaction.reply({
+        content: await resolveKey(interaction, "cmd:alreadyVerified.self"),
+        ephemeral: true,
+      });
 
     const key = fields.getTextInputValue("licenseKey");
     const data = await verify(product, key, false);
@@ -53,12 +55,12 @@ export class VerifyModalHandler extends InteractionHandler {
           new ActionRowBuilder<ButtonBuilder>().addComponents(
             new ButtonBuilder({
               customId: `verify:${product.value}`,
-              label: "Try Again",
+              label: await resolveKey(interaction, "cmd:btn.tryAgain"),
               style: ButtonStyle.Primary,
             }),
             new ButtonBuilder({
               customId: "help",
-              label: "Help",
+              label: await resolveKey(interaction, "cmd:btn.help"),
               style: ButtonStyle.Secondary,
             }),
           ),
@@ -69,12 +71,17 @@ export class VerifyModalHandler extends InteractionHandler {
     if (data.uses < 1) {
       await verify(product, key);
       try {
-        await giveVerifiedRole(member, product, "Verified License");
+        await giveVerifiedRole(
+          member,
+          product,
+          await resolveKey(interaction, "cmd:audit.verified"),
+        );
       } catch (e) {
         console.log(e);
         return interaction.reply(
-          `${user}:\n` +
-            `${emoji.warning} Your license key was verified, but something went wrong giving you the verified role.`,
+          await resolveKey(interaction, "cmd:roleError", {
+            userMention: user.toString(),
+          }),
         );
       }
 
@@ -91,13 +98,12 @@ export class VerifyModalHandler extends InteractionHandler {
       };
       log(guild, logMsg);
 
-      const usesPlural = data.uses == 1 ? "time" : "times";
-      return interaction.reply(
-        ephemeral(
-          `${emoji.check} You should now be verified.\n` +
-            `This license has now been used ${data.uses} ${usesPlural}.`,
-        ),
-      );
+      return interaction.reply({
+        content: await resolveKey(interaction, "cmd:verified", {
+          count: data.uses,
+        }),
+        ephemeral: true,
+      });
     } else {
       const row = new ActionRowBuilder<ButtonBuilder>({
         components: [
@@ -132,12 +138,10 @@ export class VerifyModalHandler extends InteractionHandler {
       };
       log(guild, logMsg);
 
-      return interaction.reply(
-        ephemeral(
-          `${emoji.check} Your license key has been verified.\n` +
-            `Please wait for an admin to manually approve you.`,
-        ),
-      );
+      return interaction.reply({
+        content: await resolveKey(interaction, "cmd:manual"),
+        ephemeral: true,
+      });
     }
   }
 }
