@@ -22,7 +22,7 @@ import { ephemeral } from "../lib/utils.js";
     },
   ],
 })
-export class ConfigCommand extends Subcommand {
+export class ConfigCmd extends Subcommand {
   registerApplicationCommands(registry: Subcommand.Registry) {
     registry.registerChatInputCommand((builder) =>
       builder

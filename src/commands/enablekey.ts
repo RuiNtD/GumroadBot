@@ -13,7 +13,7 @@ import * as db from "../lib/db.js";
   description: "Enable a license",
   runIn: CommandOptionsRunTypeEnum.GuildAny,
 })
-export class UserCommand extends Command {
+export class EnableKeyCmd extends Command {
   public override registerApplicationCommands(registry: Command.Registry) {
     registry.registerChatInputCommand((builder) =>
       builder //

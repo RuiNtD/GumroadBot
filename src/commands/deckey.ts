@@ -11,7 +11,7 @@ import * as db from "../lib/db.js";
   description: "Decrement the use count on a license",
   runIn: CommandOptionsRunTypeEnum.GuildAny,
 })
-export class UserCommand extends Command {
+export class DecKeyCmd extends Command {
   public override registerApplicationCommands(registry: Command.Registry) {
     registry.registerChatInputCommand((builder) =>
       builder //

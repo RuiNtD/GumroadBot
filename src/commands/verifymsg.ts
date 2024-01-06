@@ -15,7 +15,7 @@ import { ephemeral } from "../lib/utils.js";
   description: "Sends the bot's verification prompt in this channel",
   runIn: CommandOptionsRunTypeEnum.GuildAny,
 })
-export class UserCommand extends Command {
+export class VerifyCmd extends Command {
   public override registerApplicationCommands(registry: Command.Registry) {
     registry.registerChatInputCommand((builder) =>
       builder //

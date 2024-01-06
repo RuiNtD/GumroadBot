@@ -12,7 +12,7 @@ import * as db from "../lib/db.js";
   description: "Manually approve a user",
   runIn: CommandOptionsRunTypeEnum.GuildAny,
 })
-export class UserCommand extends Command {
+export class ApproveCmd extends Command {
   public override registerApplicationCommands(registry: Command.Registry) {
     registry.registerChatInputCommand((builder) =>
       builder //

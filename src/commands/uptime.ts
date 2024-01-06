@@ -6,7 +6,7 @@ import { Duration } from "luxon";
 @ApplyOptions<Command.Options>({
   description: "Shows bot uptime",
 })
-export class UserCommand extends Command {
+export class UptimeCmd extends Command {
   public override registerApplicationCommands(registry: Command.Registry) {
     registry.registerChatInputCommand((builder) =>
       builder //
