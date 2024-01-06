@@ -5,7 +5,6 @@ import { LicenseResponse, verify } from "../lib/api.js";
 import log, { createEmbed } from "../lib/log.js";
 import { ephemeral, giveVerifiedRole, hasVerifiedRole } from "../lib/utils.js";
 import * as emoji from "../lib/emoji.js";
-import { prodNotFound } from "../lib/msgs.js";
 import * as db from "../lib/db.js";
 import { resolveKey } from "@sapphire/plugin-i18next";
 
@@ -52,7 +51,11 @@ export class ApproveCmd extends Command {
     );
     const member = options.getMember("user");
     if (!member) return;
-    if (!product) return interaction.reply(prodNotFound);
+    if (!product)
+      return interaction.reply({
+        content: await resolveKey(interaction, "cmd:productNotFound"),
+        ephemeral: true,
+      });
 
     if (hasVerifiedRole(member, product))
       return interaction.reply({

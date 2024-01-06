@@ -7,8 +7,8 @@ import { ButtonInteraction } from "discord.js";
 import { ephemeral, hasVerifiedRole } from "../../lib/utils.js";
 import * as emoji from "../../lib/emoji.js";
 import buildModel from "../../lib/model.js";
-import { prodNotFound } from "../../lib/msgs.js";
 import * as db from "../../lib/db.js";
+import { resolveKey } from "@sapphire/plugin-i18next";
 
 const prefix = "verify:";
 
@@ -28,7 +28,11 @@ export class TryAgainBtnHandler extends InteractionHandler {
   ) {
     const { guild, member } = interaction;
     const product = await db.getProduct(guild, prodId);
-    if (!product) return interaction.reply(prodNotFound);
+    if (!product)
+      return interaction.reply({
+        content: await resolveKey(interaction, "cmd:productNotFound"),
+        ephemeral: true,
+      });
 
     if (hasVerifiedRole(member, product))
       return interaction.reply(

@@ -114,14 +114,14 @@ export class ConfigCmd extends Subcommand {
 
   public async addProduct(interaction: Subcommand.ChatInputCommandInteraction) {
     // FIXME: implement
-    return interaction.reply(ephemeral("Not yet implemented."));
+    return await interaction.reply(ephemeral("Not yet implemented."));
   }
 
   public async removeProduct(
     interaction: Subcommand.ChatInputCommandInteraction,
   ) {
     // FIXME: implement
-    return interaction.reply(ephemeral("Not yet implemented."));
+    return await interaction.reply(ephemeral("Not yet implemented."));
   }
 
   public async setLogging(

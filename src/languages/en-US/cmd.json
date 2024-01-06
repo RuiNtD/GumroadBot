@@ -1,7 +1,7 @@
 {
   "alreadyVerified": {
-    "self": "❓ You are already verified.",
-    "other": "❓ This user is already verified."
+    "self": "$t(e:question) You are already verified.",
+    "other": "$t(e:question) This user is already verified."
   },
   "btn": {
     "tryAgain": "Try Again",
@@ -10,9 +10,10 @@
   "audit": {
     "verified": "Verified License"
   },
-  "roleError": "{{userMention}}:\n⚠️ Your license key was verified, but something went wrong giving you the verified role.",
-  "verified": "✅ You should now be verified.\n$t(licenseUsed)",
+  "roleError": "{{userMention}}:\n$t(e:warning) Your license key was verified, but something went wrong giving you the verified role.",
+  "verified": "$t(e:check) You should now be verified.\n$t(licenseUsed)",
   "licenseUsed": "This license has now been used {{count}} time.",
   "licenseUsed_other": "This license has now been used {{count}} time.",
-  "manual": "✅ Your license key has been verified.\nPlease wait for an admin to manually approve you."
+  "manual": "$t(e:check) Your license key has been verified.\nPlease wait for an admin to manually approve you.",
+  "productNotFound": "$t(e:warning) Product not found."
 }

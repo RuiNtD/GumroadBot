@@ -25,7 +25,7 @@ export class UptimeCmd extends Command {
       unitDisplay: "narrow",
     });
 
-    return interaction.reply({
+    return await interaction.reply({
       content: `I have been running for ${res}.`,
       ephemeral: interaction.inGuild(),
     });

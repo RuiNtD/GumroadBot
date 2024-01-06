@@ -6,8 +6,8 @@ import log, { createEmbed } from "../lib/log.js";
 import { ephemeral } from "../lib/utils.js";
 import { PermissionsBitField } from "discord.js";
 import * as emoji from "../lib/emoji.js";
-import { prodNotFound } from "../lib/msgs.js";
 import * as db from "../lib/db.js";
+import { resolveKey } from "@sapphire/plugin-i18next";
 
 @ApplyOptions<Command.Options>({
   description: "Enable a license",
@@ -41,7 +41,11 @@ export class EnableKeyCmd extends Command {
       guild,
       options.getString("product", true),
     );
-    if (!product) return interaction.reply(prodNotFound);
+    if (!product)
+      return interaction.reply({
+        content: await resolveKey(interaction, "cmd:productNotFound"),
+        ephemeral: true,
+      });
 
     const accessToken = await db.getAccessToken(guild);
     if (!accessToken)

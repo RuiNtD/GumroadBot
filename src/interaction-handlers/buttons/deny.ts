@@ -68,7 +68,7 @@ export class DenyBtnHandler extends InteractionHandler {
       return interaction.reply(
         ephemeral(`${emoji.check} ${member} has been denied.`),
       );
-    } catch (e) {
+    } catch (_) {
       return interaction.reply(
         ephemeral(
           `${emoji.check} ${member} has been denied, but I couldn't DM them the results.`,

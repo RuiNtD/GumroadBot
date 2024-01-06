@@ -10,7 +10,7 @@ import { getProducts } from "../lib/db.js";
   interactionHandlerType: InteractionHandlerTypes.Autocomplete,
 })
 export class AutocompleteProductHandler extends InteractionHandler {
-  public override async parse(interaction: AutocompleteInteraction) {
+  public override parse(interaction: AutocompleteInteraction) {
     const focusedOption = interaction.options.getFocused(true);
     if (focusedOption.name != "product") return this.none();
     return this.some(focusedOption.value);

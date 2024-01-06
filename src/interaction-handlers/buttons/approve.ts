@@ -108,7 +108,7 @@ export class ApproveBtnHandler extends InteractionHandler {
       return interaction.reply(
         ephemeral(`${emoji.check} ${member} has been approved.`),
       );
-    } catch (e) {
+    } catch (_) {
       return interaction.reply(
         ephemeral(
           `${emoji.check} ${member} has been approved, but I couldn't DM them the results.`,
