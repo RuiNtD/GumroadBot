@@ -1,29 +1,26 @@
 import config from "config";
-import { Client, Guild, Team, TeamMember, User } from "discord.js";
+import { Client, Guild, Team, TeamMember, User, inlineCode } from "discord.js";
 
-import { openKv } from "@deno/kv";
+import { KvKey, openKv } from "@deno/kv";
 import { z } from "zod";
 
 export const kv = await openKv("kv.db");
-await kv.set(["guilds", get("guildID"), "products", get("productID")], <
-  Product
->{
-  label: "The Hybrid v2",
-  value: get("productID"),
-  emoji: "🍆",
-  role: get("verifiedRole"),
-  accessToken: get("accessToken"),
-});
-await kv.set(
-  ["guilds", get("guildID"), "loggingChannel"],
-  get("loggingChannel"),
-);
 
-export function get<T>(setting: string): T {
+export async function get<T>(
+  key: KvKey,
+  type?: z.ZodType<T>,
+): Promise<T | undefined> {
+  const { value } = await kv.get<T>(key);
+  if (value === null) return;
+  if (type) return type.parse(value);
+  else return value;
+}
+
+export function getConfig<T>(setting: string): T {
   return config.get(setting);
 }
 
-export const debug: boolean = get("debug");
+export const debug: boolean = getConfig("debug");
 
 export function getAdminID(guild: Guild): string {
   return guild.ownerId;
@@ -38,11 +35,11 @@ function getOwnerPing(
   guild?: Guild,
 ): string {
   if (owner instanceof Team)
-    return owner.name + " or " + getOwnerPing(owner.owner, guild);
+    return `${owner.name} or ${getOwnerPing(owner.owner, guild)}`;
   else if (owner instanceof TeamMember) return getOwnerPing(owner.user, guild);
   else if (owner instanceof User) {
     if (guild && guild.members.resolve(owner)) return `${owner}`;
-    return `\`${owner.tag}\``;
+    return inlineCode(`@${owner.tag}`);
   } else return "???";
 }
 
@@ -61,7 +58,7 @@ export async function getDevPing(
   return getOwnerPing(owner, guild);
 }
 
-const Snowflake = z.string().length(18);
+const Snowflake = z.string().min(17).max(20);
 type Snowflake = z.infer<typeof Snowflake>;
 const APIMessageComponentEmoji = z.object({
   id: Snowflake.optional(),
@@ -76,6 +73,7 @@ export const Product = z.object({
   emoji: ComponentEmojiResolvable.optional(),
   description: z.string().optional(),
   role: Snowflake,
+  permalink: z.string().optional(),
   accessToken: z.string().optional(),
 });
 export type Product = z.infer<typeof Product>;
@@ -94,13 +92,35 @@ export async function getProduct(
   id?: string,
 ): Promise<Product | undefined> {
   if (!id) return;
-  const entry = await kv.get<Product>(["guilds", guild.id, "products", id]);
-  return Product.parse(entry.value);
+  return await get(["guilds", guild.id, "products", id], Product);
 }
 
 export async function getLoggingChannel(guild: Guild) {
-  const entry = await kv.get<Snowflake>(["guilds", guild.id, "loggingChannel"]);
-  const id = entry.value;
+  const id = await get(["guilds", guild.id, "loggingChannel"], Snowflake);
   if (!id) return;
   return guild.channels.fetch(id);
 }
+
+export async function getAccessToken(
+  guild: Guild,
+  product?: Product,
+): Promise<string | undefined> {
+  if (product && product.accessToken) return product.accessToken;
+  const token = await get(["guilds", guild.id, "accessToken"], z.string());
+  return token;
+}
+
+await kv.set(
+  ["guilds", getConfig("guildID"), "products", getConfig("productID")],
+  Product.parse({
+    label: getConfig("name"),
+    value: getConfig("productID"),
+    role: getConfig("verifiedRole"),
+    accessToken: getConfig("accessToken"),
+    permalink: getConfig("permalink"),
+  }),
+);
+await kv.set(
+  ["guilds", getConfig("guildID"), "loggingChannel"],
+  getConfig("loggingChannel"),
+);

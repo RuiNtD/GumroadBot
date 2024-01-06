@@ -43,10 +43,14 @@ export function createEmbed(data: EmbedData): EmbedBuilder {
   }
 
   if (product) {
+    const { label, permalink } = product;
+    const name = permalink
+      ? hyperlink(label, `https://gum.co/${permalink}`)
+      : label;
     embed.addFields([
       {
         name: "Product",
-        value: product.label,
+        value: name,
         inline: true,
       },
       {

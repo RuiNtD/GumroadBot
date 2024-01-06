@@ -42,20 +42,28 @@ export class VerifyCmd extends Command {
     let customId = "verify";
     if (product) customId += `:${product.value}`;
 
-    const row = new ActionRowBuilder<ButtonBuilder>({
-      components: [
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder({
+        customId,
+        label: "Verify",
+        style: ButtonStyle.Primary,
+      }),
+    );
+    if (product?.permalink)
+      row.addComponents(
         new ButtonBuilder({
-          customId,
-          label: "Verify",
-          style: ButtonStyle.Primary,
+          url: `https://gum.co/${product.permalink}`,
+          label: "Purchase",
+          style: ButtonStyle.Link,
         }),
-        new ButtonBuilder({
-          customId: "help",
-          label: "Help",
-          style: ButtonStyle.Secondary,
-        }),
-      ],
-    });
+      );
+    row.addComponents(
+      new ButtonBuilder({
+        customId: "help",
+        label: "Help",
+        style: ButtonStyle.Secondary,
+      }),
+    );
 
     const devPing = await db.getDevPing(interaction.guild),
       adminPing = db.getAdminPing(interaction.guild),

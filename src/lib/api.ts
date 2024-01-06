@@ -1,9 +1,9 @@
-import axios from "axios";
+import axios, { Method } from "axios";
 import { z } from "zod";
 import * as config from "./db.js";
 import { Product } from "./db.js";
 
-const debug: boolean = config.get("debug");
+const debug: boolean = config.getConfig("debug");
 
 export const LicenseResponse = z.discriminatedUnion("success", [
   z.object({
@@ -18,10 +18,10 @@ export const LicenseResponse = z.discriminatedUnion("success", [
 export type LicenseResponse = z.infer<typeof LicenseResponse>;
 
 const api = axios.create({
-  baseURL: "https://api.gumroad.com/v2",
+  baseURL: "https://api.gumroad.com/v2/licenses",
   validateStatus: (status) => status < 500,
 });
-const increment_uses_count: boolean = config.get("incrementUses");
+const increment_uses_count: boolean = config.getConfig("incrementUses");
 
 function debugKey(
   key: string,
@@ -37,68 +37,71 @@ function debugKey(
   };
 }
 
+async function request(
+  url: string,
+  method: Method,
+  data: Record<string, string>,
+) {
+  const resp = await api(url, { method, data });
+  return LicenseResponse.parse(resp.data);
+}
+
 export async function verify(
   product: Product,
   key: string,
-  use?: boolean,
+  use: boolean = increment_uses_count,
 ): Promise<LicenseResponse> {
-  if (use === undefined) use = increment_uses_count;
-  return LicenseResponse.parse(
-    debugKey(key, use) ||
-      (
-        await api.post("licenses/verify", {
-          product_id: product.value,
-          license_key: key,
-          increment_uses_count: `${use}`,
-        })
-      ).data,
+  return (
+    debugKey(key) ||
+    (await request("verify", "post", {
+      product_id: product.value,
+      license_key: key,
+      increment_uses_count: `${use}`,
+    }))
   );
 }
 
 export async function enable(
   product: Product,
   key: string,
+  accessToken: string,
 ): Promise<LicenseResponse> {
-  return LicenseResponse.parse(
+  return (
     debugKey(key) ||
-      (
-        await api.put("licenses/enable", {
-          access_token: product.accessToken,
-          product_id: product.value,
-          license_key: key,
-        })
-      ).data,
+    (await request("enable", "put", {
+      access_token: accessToken,
+      product_id: product.value,
+      license_key: key,
+    }))
   );
 }
 
 export async function disable(
   product: Product,
   key: string,
+  accessToken: string,
 ): Promise<LicenseResponse> {
-  return LicenseResponse.parse(
+  return (
     debugKey(key) ||
-      (
-        await api.put("licenses/disable", {
-          access_token: product.accessToken,
-          product_id: product.value,
-          license_key: key,
-        })
-      ).data,
+    (await request("disable", "put", {
+      access_token: accessToken,
+      product_id: product.value,
+      license_key: key,
+    }))
   );
 }
 
 export async function decUses(
   product: Product,
   key: string,
+  accessToken: string,
 ): Promise<LicenseResponse> {
-  return LicenseResponse.parse(
+  return (
     debugKey(key) ||
-      (
-        await api.put("licenses/decrement_uses_count", {
-          access_token: product.accessToken,
-          product_id: product.value,
-          license_key: key,
-        })
-      ).data,
+    (await request("decrement_uses_count", "put", {
+      access_token: accessToken,
+      product_id: product.value,
+      license_key: key,
+    }))
   );
 }

@@ -39,14 +39,18 @@ export class DecKeyCmd extends Command {
       guild,
       options.getString("product", true),
     );
-    const key = options.getString("key", true);
     if (!product) return interaction.reply(prodNotFound);
 
-    const data = await decUses(product, key);
+    const accessToken = await db.getAccessToken(guild, product);
+    if (!accessToken)
+      return interaction.reply(
+        ephemeral(`${emoji.cross} You need to set an API access token.`),
+      );
 
-    if (!data.success) {
+    const key = options.getString("key", true);
+    const data = await decUses(product, key, accessToken);
+    if (!data.success)
       return interaction.reply(ephemeral(`${emoji.cross} ${data.message}`));
-    }
 
     return interaction.reply(
       ephemeral(

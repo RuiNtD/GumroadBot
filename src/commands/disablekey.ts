@@ -40,13 +40,18 @@ export class DisableKeyCmd extends Command {
       guild,
       options.getString("product", true),
     );
-    const key = options.getString("key", true);
     if (!product) return interaction.reply(prodNotFound);
 
-    const data = await disable(product, key);
-    if (!data.success) {
+    const accessToken = await db.getAccessToken(guild);
+    if (!accessToken)
+      return interaction.reply(
+        ephemeral(`${emoji.cross} You need to set an API access token.`),
+      );
+
+    const key = options.getString("key", true);
+    const data = await disable(product, key, accessToken);
+    if (!data.success)
       return interaction.reply(ephemeral(`${emoji.cross} ${data.message}`));
-    }
 
     log(guild, {
       embeds: [

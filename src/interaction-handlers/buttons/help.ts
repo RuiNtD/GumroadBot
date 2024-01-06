@@ -23,6 +23,7 @@ const reply = {
       description:
         "Your product key will be listed on your downloads page here:",
       image: {
+        // TODO: Replace with more generic image
         url: "https://media.discordapp.net/attachments/905632200345665566/1020735601600888942/unknown.png",
       },
     }),
