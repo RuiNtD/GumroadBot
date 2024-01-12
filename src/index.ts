@@ -1,6 +1,6 @@
 import { getConfig } from "./lib/db.js";
 import { LogLevel, SapphireClient } from "@sapphire/framework";
-import "@sapphire/plugin-i18next/register";
+// import "@sapphire/plugin-i18next/register";
 
 const debug: boolean = getConfig("debug");
 
