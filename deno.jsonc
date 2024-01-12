@@ -1,0 +1,10 @@
+{
+  "lock": false,
+  "unstable": ["kv", "bare-node-builtins", "sloppy-imports"],
+  "imports": {
+    // "@deno/kv": "./src/lib/kvWrapper.ts"
+  },
+  "tasks": {
+    "kview": "cd kview && deno task start"
+  }
+}

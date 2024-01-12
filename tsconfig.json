@@ -1,5 +1,7 @@
 {
   "extends": "@tsconfig/node-lts/tsconfig.json",
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/lib/kvWrapper.ts"],
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",

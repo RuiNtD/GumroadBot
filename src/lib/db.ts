@@ -2,6 +2,27 @@ import config from "config";
 import { Client, Guild, Team, TeamMember, User, inlineCode } from "discord.js";
 import { KvKey, openKv } from "@deno/kv";
 import { z } from "zod";
+// import { kvdex, collection } from "https://deno.land/x/kvdex@v0.30.0/mod.ts";
+
+const Snowflake = z.string().min(17).max(20);
+type Snowflake = z.infer<typeof Snowflake>;
+const APIMessageComponentEmoji = z.object({
+  id: Snowflake.optional(),
+  name: z.string().optional(),
+  animated: z.boolean().optional(),
+});
+const ComponentEmojiResolvable = APIMessageComponentEmoji.or(z.string());
+
+export const Product = z.object({
+  label: z.string(),
+  value: z.string(),
+  emoji: ComponentEmojiResolvable.optional(),
+  description: z.string().optional(),
+  role: Snowflake,
+  permalink: z.string().optional(),
+  accessToken: z.string().optional(),
+});
+export type Product = z.infer<typeof Product>;
 
 export const kv = await openKv("kv.db");
 
@@ -57,26 +78,6 @@ export async function getDevPing(
   return getOwnerPing(owner, guild);
 }
 
-const Snowflake = z.string().min(17).max(20);
-type Snowflake = z.infer<typeof Snowflake>;
-const APIMessageComponentEmoji = z.object({
-  id: Snowflake.optional(),
-  name: z.string().optional(),
-  animated: z.boolean().optional(),
-});
-const ComponentEmojiResolvable = APIMessageComponentEmoji.or(z.string());
-
-export const Product = z.object({
-  label: z.string(),
-  value: z.string(),
-  emoji: ComponentEmojiResolvable.optional(),
-  description: z.string().optional(),
-  role: Snowflake,
-  permalink: z.string().optional(),
-  accessToken: z.string().optional(),
-});
-export type Product = z.infer<typeof Product>;
-
 export async function getProducts(guild: Guild): Promise<Product[]> {
   const products: Product[] = [];
   for await (const entry of kv.list<Product>({
@@ -108,18 +109,3 @@ export async function getAccessToken(
   const token = await get(["guilds", guild.id, "accessToken"], z.string());
   return token;
 }
-
-await kv.set(
-  ["guilds", getConfig("guildID"), "products", getConfig("productID")],
-  Product.parse({
-    label: getConfig("name"),
-    value: getConfig("productID"),
-    role: getConfig("verifiedRole"),
-    accessToken: getConfig("accessToken"),
-    permalink: getConfig("permalink"),
-  }),
-);
-await kv.set(
-  ["guilds", getConfig("guildID"), "loggingChannel"],
-  getConfig("loggingChannel"),
-);
